@@ -41,7 +41,9 @@ namespace System.Windows.Forms
                                     UnsafeNativeMethods.ISelectionProvider,
                                     UnsafeNativeMethods.ISelectionItemProvider,
                                     UnsafeNativeMethods.IRawElementProviderHwndOverride,
-                                    UnsafeNativeMethods.IScrollItemProvider
+                                    UnsafeNativeMethods.IScrollItemProvider,
+                                    UnsafeNativeMethods.ITextProvider,
+                                    UnsafeNativeMethods.ITextProvider2
     {
         /// <summary>
         ///  Specifies the <see cref='IAccessible'/> interface used by this <see cref='AccessibleObject'/>.
@@ -959,6 +961,39 @@ namespace System.Windows.Forms
         }
 
         void UnsafeNativeMethods.IInvokeProvider.Invoke() => Invoke();
+
+
+
+
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.DocumentRange { get; }
+        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetSelection()
+        {
+            return null;
+        }
+        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetVisibleRanges()
+        {
+            return null;
+        }
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromChild(UnsafeNativeMethods.IRawElementProviderSimple childElement)
+        {
+            return null;
+        }
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromPoint(Point screenLocation)
+        {
+            return null;
+        }
+        UnsafeNativeMethods.SupportedTextSelection UnsafeNativeMethods.ITextProvider.SupportedTextSelection { get; }
+
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.GetCaretRange(out bool isActive)
+        {
+            isActive = true;
+            return null;
+        }
+
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.RangeFromAnnotation(UnsafeNativeMethods.IRawElementProviderSimple annotationElement)
+        {
+            return null;
+        }
 
         bool UnsafeNativeMethods.IValueProvider.IsReadOnly => IsReadOnly;
 
@@ -2681,7 +2716,9 @@ namespace System.Windows.Forms
                                     UnsafeNativeMethods.ISelectionProvider,
                                     UnsafeNativeMethods.ISelectionItemProvider,
                                     UnsafeNativeMethods.IScrollItemProvider,
-                                    UnsafeNativeMethods.IRawElementProviderHwndOverride
+                                    UnsafeNativeMethods.IRawElementProviderHwndOverride,
+                                    UnsafeNativeMethods.ITextProvider,
+                                    UnsafeNativeMethods.ITextProvider2
     {
         private IAccessible publicIAccessible;                       // AccessibleObject as IAccessible
         private readonly UnsafeNativeMethods.IEnumVariant publicIEnumVariant; // AccessibleObject as IEnumVariant
@@ -2709,6 +2746,8 @@ namespace System.Windows.Forms
         private readonly UnsafeNativeMethods.ISelectionItemProvider publicISelectionItemProvider;          // AccessibleObject as ISelectionItemProvider
         private readonly UnsafeNativeMethods.IScrollItemProvider publicIScrollItemProvider;          // AccessibleObject as IScrollItemProvider
         private readonly UnsafeNativeMethods.IRawElementProviderHwndOverride publicIRawElementProviderHwndOverride; // AccessibleObject as IRawElementProviderHwndOverride
+        private readonly UnsafeNativeMethods.ITextProvider publicITextProvider; // AccessibleObject as ITextProvider
+        private readonly UnsafeNativeMethods.ITextProvider2 publicITextProvider2; // AccessibleObject as ITextProvider2
 
         /// <summary>
         ///  Create a new wrapper.
@@ -2739,6 +2778,8 @@ namespace System.Windows.Forms
             publicISelectionItemProvider = (UnsafeNativeMethods.ISelectionItemProvider)accessibleImplemention;
             publicIScrollItemProvider = (UnsafeNativeMethods.IScrollItemProvider)accessibleImplemention;
             publicIRawElementProviderHwndOverride = (UnsafeNativeMethods.IRawElementProviderHwndOverride)accessibleImplemention;
+            publicITextProvider = (UnsafeNativeMethods.ITextProvider)accessibleImplemention;
+            publicITextProvider2 = (UnsafeNativeMethods.ITextProvider2)accessibleImplemention;
             // Note: Deliberately not holding onto AccessibleObject to enforce all access through the interfaces
         }
 
@@ -3069,6 +3110,14 @@ namespace System.Windows.Forms
                 {
                     return (UnsafeNativeMethods.IScrollItemProvider)this;
                 }
+                else if (patternId == NativeMethods.UIA_TextPatternId)
+                {
+                    return (UnsafeNativeMethods.ITextProvider)this;
+                }
+                else if (patternId == NativeMethods.UIA_TextPattern2Id)
+                {
+                    return (UnsafeNativeMethods.ITextProvider2)this;
+                }
                 else
                 {
                     return null;
@@ -3200,13 +3249,50 @@ namespace System.Windows.Forms
             publicIInvokeProvider.Invoke();
         }
 
-        bool UnsafeNativeMethods.IValueProvider.IsReadOnly => publicIValueProvider.IsReadOnly;
 
-        string UnsafeNativeMethods.IValueProvider.Value => publicIValueProvider.Value;
+
+
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.DocumentRange { get; }
+        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetSelection()
+        {
+            return null;
+        }
+        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetVisibleRanges()
+        {
+            return null;
+        }
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromChild(UnsafeNativeMethods.IRawElementProviderSimple childElement)
+        {
+            return null;
+        }
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromPoint(Point screenLocation)
+        {
+            return null;
+        }
+        UnsafeNativeMethods.SupportedTextSelection UnsafeNativeMethods.ITextProvider.SupportedTextSelection { get; }
+
+
+
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.GetCaretRange(out bool isActive)
+        {
+            //return publicIValueProvider.GetCaretRange(isActive, pRetVal);
+            isActive = true;
+            return null;
+        }
+
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.RangeFromAnnotation(UnsafeNativeMethods.IRawElementProviderSimple annotationElement)
+        {
+            //return publicIValueProvider.RangeFromAnnotation(annotationElement, pRetVal);
+            return null;
+        }
+
+        bool UnsafeNativeMethods.IValueProvider.IsReadOnly => true;/*publicIValueProvider.IsReadOnly;*/
+
+        string UnsafeNativeMethods.IValueProvider.Value => "fffff";/* publicIValueProvider.Value;*/
 
         void UnsafeNativeMethods.IValueProvider.SetValue(string newValue)
         {
-            publicIValueProvider.SetValue(newValue);
+            //publicIValueProvider.SetValue(newValue);
         }
 
         bool UnsafeNativeMethods.IRangeValueProvider.IsReadOnly => publicIValueProvider.IsReadOnly;

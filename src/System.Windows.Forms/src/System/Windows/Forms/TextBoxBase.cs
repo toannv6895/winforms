@@ -110,6 +110,60 @@ namespace System.Windows.Forms
             requestedHeight = Height;
         }
 
+        //internal override bool SupportsUiaProviders => true;
+
+        protected override AccessibleObject CreateAccessibilityInstance()
+        {
+            return new TextBoxBaseAccessibleObject(this);
+        }
+
+
+        class TextBoxBaseAccessibleObject : ControlAccessibleObject
+        {
+            TextBoxBase _owner;
+
+            public TextBoxBaseAccessibleObject(TextBoxBase owner) : base(owner)
+            {
+                _owner = owner;
+            }
+
+            internal override bool IsIAccessibleExSupported()
+            {
+                return true;
+            }
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                switch (patternId)
+                {
+                    case NativeMethods.UIA_TextPatternId:
+                    case NativeMethods.UIA_TextPattern2Id:
+                        return true;
+                    default:
+                        return base.IsPatternSupported(patternId);
+                }
+               
+            }
+
+            internal override object GetPropertyValue(int propertyID)
+            {
+                switch (propertyID)
+                {
+                    case NativeMethods.UIA_IsTextPatternAvailablePropertyId:
+                        return IsPatternSupported(NativeMethods.UIA_TextPatternId);
+                    case NativeMethods.UIA_IsTextPattern2AvailablePropertyId:
+                        return IsPatternSupported(NativeMethods.UIA_TextPatternId);
+                    case NativeMethods.UIA_IsValuePatternAvailablePropertyId:
+                        return IsPatternSupported(NativeMethods.UIA_TextPatternId);
+                    default:
+                        return base.GetPropertyValue(propertyID);
+                }
+                
+            }
+        }
+
+
+
         /// <summary>
         ///  Gets or sets
         ///  a value indicating whether pressing the TAB key

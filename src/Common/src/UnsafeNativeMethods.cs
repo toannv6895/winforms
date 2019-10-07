@@ -1110,8 +1110,8 @@ namespace System.Windows.Forms
 
             [PreserveSig]
             Interop.HRESULT TransformCoords(
-                Point *pPtlHimetric,
-                PointF *pPtfContainer,
+                Point* pPtlHimetric,
+                PointF* pPtfContainer,
                 uint dwFlags);
 
             [PreserveSig]
@@ -2254,6 +2254,7 @@ namespace System.Windows.Forms
             [return: MarshalAs(UnmanagedType.Interface)] ITextRange RangeFromPoint(int x, int y);
         };
 
+
         [ComVisible(true), Guid("8CC497C2-A1DF-11ce-8098-00AA0047BE5D"),
         InterfaceType(ComInterfaceType.InterfaceIsDual)]
         public interface ITextRange
@@ -2832,7 +2833,7 @@ namespace System.Windows.Forms
                 uint dwDrawAspect,
                 int lindex,
                 NativeMethods.tagDVTARGETDEVICE ptd,
-                Size *lpsizel);
+                Size* lpsizel);
         }
 
         [ComImport(), Guid("0000010C-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -4298,6 +4299,88 @@ namespace System.Windows.Forms
             {
                 get;
             }
+        }
+
+        [ComVisible(true)]
+        [ComImport()]
+        [Guid("3589c92c-63f3-4367-99bb-ada653b77cf2")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        public interface ITextProvider
+        {
+            ITextRangeProvider DocumentRange { get; }
+            SupportedTextSelection SupportedTextSelection { get; }
+
+            ITextRangeProvider[] GetSelection();
+            ITextRangeProvider[] GetVisibleRanges();
+            ITextRangeProvider RangeFromChild(IRawElementProviderSimple childElement);
+            ITextRangeProvider RangeFromPoint(Point screenLocation);
+        }
+
+        [ComVisible(true)]
+        [Flags]
+        [Guid("3d9e3d8f-bfb0-484f-84ab-93ff4280cbc4")]
+        public enum SupportedTextSelection
+        {
+            None = 0,
+            Single = 1,
+            Multiple = 2
+        }
+
+        [ComVisible(true)]
+        [Guid("62242CAC-9CD0-4364-813D-4F0A36DD842D")]
+        public enum TextPatternRangeEndpoint
+        {
+            Start = 0,
+            End = 1
+        }
+
+        [ComVisible(true)]
+        [Guid("A044E5C8-FC20-4747-8CC8-1487F9CBB680")]
+        public enum TextUnit
+        {
+            Character = 0,
+            Format = 1,
+            Word = 2,
+            Line = 3,
+            Paragraph = 4,
+            Page = 5,
+            Document = 6
+        }
+
+        [ComVisible(true)]
+        [ComImport()]
+        [Guid("5347ad7b-c355-46f8-aff5-909033582f63")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        public interface ITextRangeProvider
+        {
+            void AddToSelection();
+            ITextRangeProvider Clone();
+            bool Compare(ITextRangeProvider range);
+            int CompareEndpoints(TextPatternRangeEndpoint endpoint, ITextRangeProvider targetRange, TextPatternRangeEndpoint targetEndpoint);
+            void ExpandToEnclosingUnit(TextUnit unit);
+            ITextRangeProvider FindAttribute(int attribute, object value, bool backward);
+            ITextRangeProvider FindText(string text, bool backward, bool ignoreCase);
+            object GetAttributeValue(int attribute);
+            double[] GetBoundingRectangles();
+            IRawElementProviderSimple[] GetChildren();
+            IRawElementProviderSimple GetEnclosingElement();
+            string GetText(int maxLength);
+            int Move(TextUnit unit, int count);
+            void MoveEndpointByRange(TextPatternRangeEndpoint endpoint, ITextRangeProvider targetRange, TextPatternRangeEndpoint targetEndpoint);
+            int MoveEndpointByUnit(TextPatternRangeEndpoint endpoint, TextUnit unit, int count);
+            void RemoveFromSelection();
+            void ScrollIntoView(bool alignToTop);
+            void Select();
+        }
+
+        [ComVisible(true)]
+        [ComImport()]
+        [Guid("3589c92c-63f3-4367-99bb-ada653b77cf2")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        public interface ITextProvider2 : ITextProvider
+        {
+            ITextRangeProvider GetCaretRange(out bool isActive);
+            ITextRangeProvider RangeFromAnnotation(IRawElementProviderSimple annotationElement);
         }
 
         [ComVisible(true)]
