@@ -4100,6 +4100,8 @@ namespace System.Windows.Forms
             public INPUTUNION inputUnion;
         }
 
+        public const int INPUT_MOUSE = 0;
+
         // We need to split the field offset out into a union struct to avoid
         // silent problems in 64 bit
         [StructLayout(LayoutKind.Explicit)]
@@ -4194,6 +4196,38 @@ namespace System.Windows.Forms
         {                               // Taken from richedit.h:
             public uint flags;          // Flags (see GTL_XXX defines)
             public uint codepage;       // Code page for translation (CP_ACP for default, 1200 for Unicode)
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct GUITHREADINFO
+        {
+            internal int cbSize;
+            internal int dwFlags;
+            internal IntPtr hwndActive;
+            internal IntPtr hwndFocus;
+            internal IntPtr hwndCapture;
+            internal IntPtr hwndMenuOwner;
+            internal IntPtr hwndMoveSize;
+            internal IntPtr hwndCaret;
+            internal Interop.RECT rc;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct Win32Point
+        {
+            internal int x;
+            internal int y;
+
+            internal Win32Point(int x, int y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+
+            static public explicit operator Win32Point(Point pt)
+            {
+                return checked(new Win32Point((int)pt.X, (int)pt.Y));
+            }
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
@@ -4813,6 +4847,27 @@ namespace System.Windows.Forms
             public byte[] bmiColors; // RGBQUAD structs... Blue-Green-Red-Reserved, repeat...
         }
 
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct LOGFONT
+        {
+            internal int lfHeight;
+            internal int lfWidth;
+            internal int lfEscapement;
+            internal int lfOrientation;
+            internal int lfWeight;
+            internal byte lfItalic;
+            internal byte lfUnderline;
+            internal byte lfStrikeOut;
+            internal byte lfCharSet;
+            internal byte lfOutPrecision;
+            internal byte lfClipPrecision;
+            internal byte lfQuality;
+            internal byte lfPitchAndFamily;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+            internal string lfFaceName;
+        }
+
         /// <summary>
         ///  This method takes a file URL and converts it to a local path.  The trick here is that
         ///  if there is a '#' in the path, everything after this is treated as a fragment.  So
@@ -4874,6 +4929,12 @@ namespace System.Windows.Forms
 
         public const int NULL_BRUSH = 5;
         public const int MM_HIMETRIC = 3;
+
+        // GetSysColor()
+        internal const int COLOR_WINDOWTEXT = 8;
+
+        internal const int WAIT_FAILED = unchecked((int)0xFFFFFFFF);
+        internal const int WAIT_TIMEOUT = 0x00000102;
 
         // Threading stuff
         public const uint STILL_ACTIVE = 259;
@@ -5219,6 +5280,19 @@ namespace System.Windows.Forms
 
         [DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern IntPtr SetParent(IntPtr hWnd, IntPtr hWndParent);
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SIZE
+        {
+            internal int cx;
+            internal int cy;
+
+            internal SIZE(int cx, int cy)
+            {
+                this.cx = cx;
+                this.cy = cy;
+            }
+        }
     }
 }
 

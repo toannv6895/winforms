@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms.Automation;
 using System.Windows.Forms.Layout;
 using static Interop;
 
@@ -110,21 +111,169 @@ namespace System.Windows.Forms
             requestedHeight = Height;
         }
 
-        //internal override bool SupportsUiaProviders => true;
-
         protected override AccessibleObject CreateAccessibilityInstance()
         {
             return new TextBoxBaseAccessibleObject(this);
         }
 
-
-        class TextBoxBaseAccessibleObject : ControlAccessibleObject
+        internal class TextBoxBaseUiaTextProvider : UiaTextProvider
         {
-            TextBoxBase _owner;
+            private TextBoxBase _owner;
+
+            public TextBoxBaseUiaTextProvider(TextBoxBase owner)
+            {
+                _owner = owner;
+            }
+
+            public override bool IsMultiline => _owner.Multiline;
+
+            public override bool IsReadOnly => _owner.ReadOnly;
+
+            public override bool IsScrollable => _owner.Scrollable;
+
+            public override int LinesPerPage => _owner.LinesPerPage;
+
+            public override Control OwningControl => _owner;
+
+            public override UnsafeNativeMethods.ITextRangeProvider DocumentRangeInternal =>
+                new UiaTextRange(this, 0, GetTextLength());
+
+            public override UnsafeNativeMethods.SupportedTextSelection SupportedTextSelectionInternal =>
+                UnsafeNativeMethods.SupportedTextSelection.Single;
+
+            public override int GetFirstVisibleLine()
+            {
+                return _owner.GetFirstVisibleLine();
+            }
+
+            public override int GetLineCount()
+            {
+                return unchecked((int)(long)_owner.SendMessage(EditMessages.EM_GETLINECOUNT, 0, 0));
+            }
+
+            public override int GetLineFromCharIndex(int charIndex)
+            {
+                return _owner.GetLineFromCharIndex(charIndex);
+            }
+
+            public override int GetLineIndex(int line)
+            {
+                return _owner.GetLineIndex(line);
+            }
+
+            public override int GetLinesPerPage()
+            {
+                return _owner.LinesPerPage;
+            }
+
+            public override NativeMethods.LOGFONT GetLogfont()
+            {
+                return _owner.GetLogfont();
+            }
+
+            public override Point GetPositionFromChar(int charIndex)
+            {
+                return _owner.GetPositionFromCharIndex(charIndex);
+            }
+
+            public override Point GetPositionFromCharUR(int startCharIndex, string text)
+            {
+                return _owner.GetPositionFromCharUR(startCharIndex, text);
+            }
+
+            public override Rectangle GetRectangle()
+            {
+                return _owner.GetRectangle();
+            }
+
+            public override UnsafeNativeMethods.ITextRangeProvider[] GetSelectionInternal()
+            {
+                int start, end;
+                _owner.GetSelection(out start, out end);
+                return new UnsafeNativeMethods.ITextRangeProvider[] { new UiaTextRange(this, start, end) };
+            }
+
+            public override string GetText()
+            {
+                return GetText(_owner.Handle, _owner.TextLength);
+            }
+
+            public override int GetTextLength()
+            {
+                return _owner.GetTextLength();
+            }
+
+            public override void GetVisibleRangePoints(out int visibleStart, out int visibleEnd)
+            {
+                _owner.GetVisibleRangePoints(out visibleStart, out visibleEnd);
+            }
+
+            public override UnsafeNativeMethods.ITextRangeProvider[] GetVisibleRangesInternal()
+            {
+                GetVisibleRangePoints(out int start, out int end);
+                return new UnsafeNativeMethods.ITextRangeProvider[] { new UiaTextRange(this, start, end) };
+            }
+
+            public override bool LineScroll(int charactersHorizontal, int linesVertical)
+            {
+                return _owner.LineScroll(charactersHorizontal, linesVertical);
+            }
+
+            public override UnsafeNativeMethods.ITextRangeProvider RangeFromChildInternal(UnsafeNativeMethods.IRawElementProviderSimple childElement)
+            {
+                // We don't have any children so this call must be in error.
+                throw new InvalidOperationException("Text edit control cannot have a child element.");
+            }
+
+            public override UnsafeNativeMethods.ITextRangeProvider RangeFromPointInternal(Point screenLocation)
+            {
+                // Convert screen to client coordinates.
+                // (Essentially ScreenToClient but MapWindowPoints accounts for window mirroring using WS_EX_LAYOUTRTL.)
+                if (UnsafeNativeMethods.MapWindowPoints(new HandleRef(null, IntPtr.Zero), new HandleRef(this, _owner.Handle), ref screenLocation, 1) == 0)
+                {
+                    return null;
+                }
+
+                // We have to deal with the possibility that the coordinate is inside the window rect
+                // but outside the client rect. In that case we just scoot it over so it is at the nearest
+                // point in the client rect.
+                RECT clientRectangle = new RECT();
+                bool result = UnsafeNativeMethods.GetClientRect(new HandleRef(this, _owner.Handle), ref clientRectangle);
+                if (!result)
+                {
+                    return null;
+                }
+
+                screenLocation.X = Math.Max(screenLocation.X, clientRectangle.left);
+                screenLocation.X = Math.Min(screenLocation.X, clientRectangle.right);
+                screenLocation.Y = Math.Max(screenLocation.Y, clientRectangle.top);
+                screenLocation.Y = Math.Min(screenLocation.Y, clientRectangle.bottom);
+
+                // get the character at those client coordinates
+                int start = _owner.GetCharIndexFromPosition(screenLocation);
+                return new UiaTextRange(this, start, start);
+            }
+
+            public override void SetSelection(int start, int end)
+            {
+                Debug.Assert(start >= 0, "SetSelection negative start.");
+                Debug.Assert(start <= GetTextLength(), "SetSelection start is out of range.");
+                Debug.Assert(end >= 0, "SetSelection negative end.");
+                Debug.Assert(end <= GetTextLength(), "SetSelection end is out of range.");
+
+                _owner.SendMessage(EditMessages.EM_SETSEL, start, end);
+            }
+        }
+
+        internal class TextBoxBaseAccessibleObject : ControlAccessibleObject
+        {
+            private TextBoxBase _owner;
+            private TextBoxBaseUiaTextProvider _textProvider;
 
             public TextBoxBaseAccessibleObject(TextBoxBase owner) : base(owner)
             {
                 _owner = owner;
+                _textProvider = new TextBoxBaseUiaTextProvider(owner);
             }
 
             internal override bool IsIAccessibleExSupported()
@@ -142,7 +291,6 @@ namespace System.Windows.Forms
                     default:
                         return base.IsPatternSupported(patternId);
                 }
-               
             }
 
             internal override object GetPropertyValue(int propertyID)
@@ -158,11 +306,28 @@ namespace System.Windows.Forms
                     default:
                         return base.GetPropertyValue(propertyID);
                 }
-                
             }
+
+            internal override UnsafeNativeMethods.ITextRangeProvider DocumentRangeInternal =>
+                new Automation.UiaTextRange(_textProvider, 0, _owner.TextLength);
         }
 
+        internal unsafe NativeMethods.LOGFONT GetLogfont()
+        {
+            IntPtr font = GetFont();
+            Debug.Assert(font != IntPtr.Zero, "WindowsEditBox.GetLogfont got null HFONT.");
 
+            NativeMethods.LOGFONT logFont = new NativeMethods.LOGFONT();
+            int cb = Marshal.SizeOf(typeof(NativeMethods.LOGFONT));
+
+            int result = Internal.IntUnsafeNativeMethods.GetObjectW(font, cb, ref logFont);
+            if (result != cb)
+            {
+                Debug.Assert(false, "WindowsEditBox.GetObject unexpected return value.");
+            }
+
+            return logFont;
+        }
 
         /// <summary>
         ///  Gets or sets
@@ -782,6 +947,226 @@ namespace System.Windows.Forms
             }
         }
 
+        internal int GetFirstVisibleChar()
+        {
+            Debug.Assert(!Multiline);
+            return unchecked((int)(long)SendMessage(EditMessages.EM_GETFIRSTVISIBLELINE, 0, 0));
+        }
+
+        internal int GetFirstVisibleLine()
+        {
+            return unchecked((int)(long)SendMessage(EditMessages.EM_GETFIRSTVISIBLELINE, 0, 0));
+        }
+
+        internal int GetLineIndex(int line)
+        {
+            return unchecked((int)(long)SendMessage(EditMessages.EM_LINEINDEX, line, 0));
+        }
+
+        internal int GetTextLength()
+        {
+            return unchecked((int)(long)SendMessage(WindowMessages.WM_GETTEXTLENGTH, 0, 0));
+        }
+
+        internal void GetVisibleRangePoints(out int start, out int end)
+        {
+            start = 0;
+            end = 0;
+
+            RECT rectangle = new RECT();
+            bool result = UnsafeNativeMethods.GetClientRect(new HandleRef(this, Handle), ref rectangle);
+
+            if (result && !rectangle.Empty)
+            {
+                string s = new string('E', 1);
+                GetTextExtentPoint32(s, out Size size);
+
+                Point ptStart = new Point((int)(rectangle.left + size.Width / 4), (int)(rectangle.top + size.Height / 4));
+                Point ptEnd = new Point((int)(rectangle.right - size.Width / 8), (int)(rectangle.bottom - size.Height / 4));
+
+                start = GetCharIndexFromPosition(ptStart);
+                end = GetCharIndexFromPosition(ptEnd);
+
+                if (start > 0)
+                {
+                    Point pt = GetPositionFromCharIndex(start);
+                    if (pt.X < rectangle.left)
+                    {
+                        start++;
+                    }
+                }
+            }
+            else
+            {
+                // Multi-line edit controls are handled differently than single-line edit controls.
+                if (Multiline)
+                {
+                    // Get the line number of the first visible line and start the range at
+                    // the beginning of that line.
+                    int firstLine = GetFirstVisibleLine();
+                    start = GetLineIndex(firstLine);
+
+                    // Calculate the line number of the first line scrolled off the bottom and
+                    // end the range at the beginning of that line.
+                    end = GetLineIndex(firstLine + LinesPerPage);
+                }
+                else
+                {
+                    // Single-line edit control
+
+                    // The problem is that using a variable-width font the number of characters visible
+                    // depends on the text that is in the edit control. So we can't just divide the
+                    // width of the edit control by the width of a character.
+
+                    // So instead we do a binary search of the characters from the first visible character
+                    // to the end of the text to find the visibility boundary.
+                    RECT r = GetRectangle();
+                    int limit = GetTextLength();
+                    start = GetFirstVisibleChar();
+
+                    int lo = start; // known visible
+                    int hi = limit; // known non-visible
+                    while (lo + 1 < hi)
+                    {
+                        int mid = (lo + hi) / 2;
+
+                        Point pt = GetPositionFromCharIndex(mid);
+                        if (pt.X >= r.left && pt.X < r.right)
+                        {
+                            lo = mid;
+                        }
+                        else
+                        {
+                            hi = mid;
+                        }
+                    }
+
+                    // trim off one character unless the range is empty or reaches the end.
+                    end = hi > start && hi < limit ? hi - 1 : hi;
+                }
+            }
+        }
+
+        private int GetWindowStyle()
+        {
+            IntPtr result = UnsafeNativeMethods.GetWindowLong(new HandleRef(this, Handle), NativeMethods.GWL_STYLE);
+
+            return IntPtrToInt32(result);
+        }
+
+        // We have this wrapper because casting IntPtr to int may
+        // generate OverflowException when one of high 32 bits is set.
+        public static int IntPtrToInt32(IntPtr intPtr)
+        {
+            return unchecked((int)intPtr.ToInt64());
+        }
+
+        internal bool LineScroll(int charactersHorizontal, int linesVertical)
+        {
+            // Sends an EM_LINESCROLL message to scroll it horizontally and/or vertically.
+            return SendMessage(EditMessages.EM_LINESCROLL, charactersHorizontal, linesVertical) != IntPtr.Zero;
+        }
+
+        internal int LinesPerPage
+        {
+            get
+            {
+                int linePerPage = 0;
+                int style = GetWindowStyle();
+                if ((style & NativeMethods.WS_VSCROLL) == NativeMethods.WS_VSCROLL)
+                {
+                    // We call GetScrollInfo and return the size of the "page".
+                    NativeMethods.SCROLLINFO si = new NativeMethods.SCROLLINFO();
+                    si.cbSize = Marshal.SizeOf(typeof(NativeMethods.SCROLLINFO));
+                    si.fMask = NativeMethods.SIF_ALL;
+
+                    bool ok = UnsafeNativeMethods.GetScrollInfo(new HandleRef(this, Handle), NativeMethods.SB_VERT, si);
+                    linePerPage = ok ? si.nPage : 0;
+                    if (Multiline && linePerPage <= 0)
+                    {
+                        linePerPage = 1;
+                    }
+                }
+                else
+                {
+                    RECT rect = new RECT();
+                    if (UnsafeNativeMethods.GetClientRect(new HandleRef(this, Handle), ref rect) && !rect.Empty)
+                    {
+                        string s = new string('E', 1);
+                        GetTextExtentPoint32(s, out Size size);
+
+                        if (size.Height != 0)
+                        {
+                            linePerPage = (rect.bottom - rect.top) / size.Height;
+                        }
+                    }
+                }
+
+                return linePerPage;
+            }
+        }
+
+        internal IntPtr GetFont()
+        {
+            // Sends a WM_GETFONT message to find out what font the edit control is using.
+            IntPtr result = SendMessage(WindowMessages.WM_GETFONT, IntPtr.Zero, IntPtr.Zero);
+
+            // A null result is within normal bounds, as per the WM_GETFONT documentation:
+            // The return value is a handle to the font used by the control, or NULL if the control is using the system font.
+            if (result == IntPtr.Zero)
+            {
+                result = Gdi32.GetStockObject(Gdi32.StockObject.SYSTEM_FONT);
+            }
+
+            return result;
+        }
+
+        internal static IntPtr SelectObject(IntPtr hdc, IntPtr hObject)
+        {
+            return Gdi32.SelectObject(hdc, hObject);
+        }
+
+        internal RECT GetRectangle()
+        {
+            // Send an EM_GETRECT message to find out the bounding rectangle.
+            RECT rectangle = new RECT();
+            SendMessage(EditMessages.EM_GETRECT, 0, ref rectangle);
+            return new Rectangle(rectangle.left, rectangle.top, rectangle.right - rectangle.left, rectangle.bottom - rectangle.top);
+        }
+
+        private bool GetTextExtentPoint32(string text, out Size size)
+        {
+            size = new Size();
+
+            // Add the width of the character at that position.
+            // Note: if any of these can throw an exception then we should use a finally clause
+            // to ensure the DC is released.
+            IntPtr hdc = User32.GetDC(Handle);
+            if (hdc == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            IntPtr oldFont = IntPtr.Zero;
+            try
+            {
+                IntPtr hfont = GetFont();
+                oldFont = SelectObject(hdc, hfont);
+
+                BOOL result = Gdi32.GetTextExtentPoint32W(hdc, text, text.Length, ref size);
+                return result == BOOL.TRUE;
+            }
+            finally
+            {
+                if (oldFont != IntPtr.Zero)
+                {
+                    SelectObject(hdc, oldFont);
+                }
+
+                User32.ReleaseDC(Handle, hdc);
+            }
+        }
+
         /// <summary>
         ///  Gets or sets the maximum number of
         ///  characters the user can type into the text box control.
@@ -1030,6 +1415,16 @@ namespace System.Windows.Forms
             return preferredSize;
         }
 
+        internal void GetSelection(out int start, out int end)
+        {
+            start = 0;
+            end = 0;
+
+            // Send an EM_GETSEL message to get the starting and ending
+            // character positions of the selection.
+            SendMessage(EditMessages.EM_GETSEL, ref start, ref end);
+        }
+
         /// <summary>
         ///  Get the currently selected text start position and length.  Use this method internally
         ///  to avoid calling SelectionStart + SelectionLength each of which does essentially the
@@ -1116,6 +1511,20 @@ namespace System.Windows.Forms
                     VerifyImeRestrictedModeChanged();
                 }
             }
+        }
+
+        internal bool Scrollable
+        {
+            get
+            {
+                int style = GetWindowStyle();
+                return IsBitSet(style, NativeMethods.ES_AUTOHSCROLL) || IsBitSet(style, NativeMethods.ES_AUTOHSCROLL);
+            }
+        }
+
+        public bool IsBitSet(int flags, int bit)
+        {
+            return (flags & bit) == bit;
         }
 
         [SRCategory(nameof(SR.CatPropertyChanged)), SRDescription(nameof(SR.TextBoxBaseOnReadOnlyChangedDescr))]
@@ -1811,6 +2220,52 @@ namespace System.Windows.Forms
 
             int i = (int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), EditMessages.EM_POSFROMCHAR, index, 0);
             return new Point(NativeMethods.Util.SignedLOWORD(i), NativeMethods.Util.SignedHIWORD(i));
+        }
+
+        internal Point GetPositionFromCharUR(int index, string text)
+        {
+            // A variation on EM_POSFROMCHAR that returns the upper-right corner instead of upper-left.
+
+            // Get the upper-left of the character.
+            Point pt;
+            char ch = text[index];
+            switch (ch)
+            {
+                case '\n':
+                case '\r':
+                    // get the UL corner of the character and return it since these characters have no width.
+                    pt = GetPositionFromCharIndex(index);
+                    break;
+
+                case '\t':
+                    {
+                        // for tabs the calculated width of the character is no help so we use the
+                        // UL corner of the following character if it is on the same line.
+                        bool useNext = index < TextLength - 1 && GetLineFromCharIndex(index + 1) == GetLineFromCharIndex(index);
+                        pt = GetPositionFromCharIndex(useNext ? index + 1 : index);
+                    }
+
+                    break;
+
+                default:
+                    {
+                        // get the UL corner of the character
+                        pt = GetPositionFromCharIndex(index);
+
+                        // add the width of the character at that position.
+                        string s = new string(ch, 1);
+                        if (!GetTextExtentPoint32(s, out Size size))
+                        {
+                            break;
+                        }
+
+                        pt.X += size.Width;
+                    }
+
+                    break;
+            }
+
+            return pt;
         }
 
         /// <summary>

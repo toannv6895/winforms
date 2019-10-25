@@ -62,6 +62,8 @@ namespace System.Windows.Forms
         // Indicates this object is being used ONLY to wrap a system IAccessible
         private readonly bool systemWrapper = false;
 
+        private UnsafeNativeMethods.ITextProvider _textProvider;
+
         // The support for the UIA Notification event begins in RS3.
         // Assume the UIA Notification event is available until we learn otherwise.
         // If we learn that the UIA Notification event is not available,
@@ -962,26 +964,29 @@ namespace System.Windows.Forms
 
         void UnsafeNativeMethods.IInvokeProvider.Invoke() => Invoke();
 
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.DocumentRange =>
+            _textProvider.DocumentRange;
 
-
-
-        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.DocumentRange { get; }
         UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetSelection()
         {
             return null;
         }
+
         UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetVisibleRanges()
         {
             return null;
         }
+
         UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromChild(UnsafeNativeMethods.IRawElementProviderSimple childElement)
         {
             return null;
         }
+
         UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromPoint(Point screenLocation)
         {
             return null;
         }
+
         UnsafeNativeMethods.SupportedTextSelection UnsafeNativeMethods.ITextProvider.SupportedTextSelection { get; }
 
         UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.GetCaretRange(out bool isActive)
@@ -2752,7 +2757,9 @@ namespace System.Windows.Forms
         /// <summary>
         ///  Create a new wrapper.
         /// </summary>
-        internal InternalAccessibleObject(AccessibleObject accessibleImplemention)
+        internal InternalAccessibleObject(AccessibleObject accessibleImplemention,
+            UnsafeNativeMethods.ITextProvider textProviderImplementation = null,
+            UnsafeNativeMethods.ITextProvider2 textProvider2Implementation = null)
         {
             // Get all the casts done here to catch any issues early
             publicIAccessible = (IAccessible)accessibleImplemention;
@@ -3250,49 +3257,32 @@ namespace System.Windows.Forms
         }
 
 
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.DocumentRange => publicITextProvider.DocumentRange;
 
+        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetSelection() => publicITextProvider.GetSelection();
 
-        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.DocumentRange { get; }
-        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetSelection()
-        {
-            return null;
-        }
-        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetVisibleRanges()
-        {
-            return null;
-        }
-        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromChild(UnsafeNativeMethods.IRawElementProviderSimple childElement)
-        {
-            return null;
-        }
-        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromPoint(Point screenLocation)
-        {
-            return null;
-        }
-        UnsafeNativeMethods.SupportedTextSelection UnsafeNativeMethods.ITextProvider.SupportedTextSelection { get; }
+        UnsafeNativeMethods.ITextRangeProvider[] UnsafeNativeMethods.ITextProvider.GetVisibleRanges() => publicITextProvider.GetVisibleRanges();
 
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromChild(UnsafeNativeMethods.IRawElementProviderSimple childElement) =>
+            publicITextProvider.RangeFromChild(childElement);
 
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider.RangeFromPoint(Point screenLocation) =>
+            publicITextProvider.RangeFromPoint(screenLocation);
 
-        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.GetCaretRange(out bool isActive)
-        {
-            //return publicIValueProvider.GetCaretRange(isActive, pRetVal);
-            isActive = true;
-            return null;
-        }
+        UnsafeNativeMethods.SupportedTextSelection UnsafeNativeMethods.ITextProvider.SupportedTextSelection => publicITextProvider.SupportedTextSelection;
 
-        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.RangeFromAnnotation(UnsafeNativeMethods.IRawElementProviderSimple annotationElement)
-        {
-            //return publicIValueProvider.RangeFromAnnotation(annotationElement, pRetVal);
-            return null;
-        }
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.GetCaretRange(out bool isActive) => publicITextProvider2.GetCaretRange(out isActive);
 
-        bool UnsafeNativeMethods.IValueProvider.IsReadOnly => true;/*publicIValueProvider.IsReadOnly;*/
+        UnsafeNativeMethods.ITextRangeProvider UnsafeNativeMethods.ITextProvider2.RangeFromAnnotation(UnsafeNativeMethods.IRawElementProviderSimple annotationElement) =>
+            publicITextProvider2.RangeFromAnnotation(annotationElement);
 
-        string UnsafeNativeMethods.IValueProvider.Value => "fffff";/* publicIValueProvider.Value;*/
+        bool UnsafeNativeMethods.IValueProvider.IsReadOnly => publicIValueProvider.IsReadOnly;
+
+        string UnsafeNativeMethods.IValueProvider.Value => publicIValueProvider.Value;
 
         void UnsafeNativeMethods.IValueProvider.SetValue(string newValue)
         {
-            //publicIValueProvider.SetValue(newValue);
+            publicIValueProvider.SetValue(newValue);
         }
 
         bool UnsafeNativeMethods.IRangeValueProvider.IsReadOnly => publicIValueProvider.IsReadOnly;

@@ -64,6 +64,9 @@ namespace System.Windows.Forms
             [In]
             ref Guid iid);
 
+        [DllImport(ExternDll.User32, SetLastError = true)]
+        internal static extern bool GetGUIThreadInfo(uint idThread, ref NativeMethods.GUITHREADINFO guiThreadInfo);
+
         [DllImport(ExternDll.Kernel32, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern int GetLocaleInfo(int Locale, int LCType, StringBuilder lpLCData, int cchData);
 
@@ -315,6 +318,9 @@ namespace System.Windows.Forms
 
         [DllImport(ExternDll.User32, ExactSpelling = true, SetLastError = true, CharSet = CharSet.Auto)]
         public static extern uint SendInput(uint nInputs, NativeMethods.INPUT[] pInputs, int cbSize);
+
+        [DllImport(ExternDll.User32, SetLastError = true)]
+        internal static extern int SendInput(int nInputs, ref NativeMethods.INPUT ki, int cbSize);
 
         #endregion
 
@@ -4308,11 +4314,15 @@ namespace System.Windows.Forms
         public interface ITextProvider
         {
             ITextRangeProvider DocumentRange { get; }
+
             SupportedTextSelection SupportedTextSelection { get; }
 
             ITextRangeProvider[] GetSelection();
+
             ITextRangeProvider[] GetVisibleRanges();
+
             ITextRangeProvider RangeFromChild(IRawElementProviderSimple childElement);
+
             ITextRangeProvider RangeFromPoint(Point screenLocation);
         }
 
@@ -4354,22 +4364,39 @@ namespace System.Windows.Forms
         public interface ITextRangeProvider
         {
             void AddToSelection();
+
             ITextRangeProvider Clone();
+
             bool Compare(ITextRangeProvider range);
+
             int CompareEndpoints(TextPatternRangeEndpoint endpoint, ITextRangeProvider targetRange, TextPatternRangeEndpoint targetEndpoint);
+
             void ExpandToEnclosingUnit(TextUnit unit);
+
             ITextRangeProvider FindAttribute(int attribute, object value, bool backward);
+
             ITextRangeProvider FindText(string text, bool backward, bool ignoreCase);
+
             object GetAttributeValue(int attribute);
+
             double[] GetBoundingRectangles();
+
             IRawElementProviderSimple[] GetChildren();
+
             IRawElementProviderSimple GetEnclosingElement();
+
             string GetText(int maxLength);
+
             int Move(TextUnit unit, int count);
+
             void MoveEndpointByRange(TextPatternRangeEndpoint endpoint, ITextRangeProvider targetRange, TextPatternRangeEndpoint targetEndpoint);
+
             int MoveEndpointByUnit(TextPatternRangeEndpoint endpoint, TextUnit unit, int count);
+
             void RemoveFromSelection();
+
             void ScrollIntoView(bool alignToTop);
+
             void Select();
         }
 
@@ -4380,6 +4407,7 @@ namespace System.Windows.Forms
         public interface ITextProvider2 : ITextProvider
         {
             ITextRangeProvider GetCaretRange(out bool isActive);
+
             ITextRangeProvider RangeFromAnnotation(IRawElementProviderSimple annotationElement);
         }
 
@@ -4777,5 +4805,49 @@ namespace System.Windows.Forms
             /// </summary>
             void ScrollIntoView();
         }
+
+        [DllImport(ExternDll.Kernel32, CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern short GlobalAddAtom(string atomName);
+
+        [DllImport(ExternDll.Kernel32, ExactSpelling = true, CharSet = CharSet.Auto)]
+        public static extern short GlobalDeleteAtom(short atom);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool RegisterHotKey(IntPtr hwnd, int atom, int fsModifiers, int vk);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern int GetMessage([In, Out] ref NativeMethods.MSG msg, IntPtr hWnd, int uMsgFilterMin, int uMsgFilterMax);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Unicode)]
+        internal static extern IntPtr DispatchMessage([In] ref NativeMethods.MSG msg);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern bool UnregisterHotKey(IntPtr hwnd, int atom);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern uint RealGetWindowClass(IntPtr hwnd, StringBuilder className, uint maxCount);
+
+        //
+        // SendInput related
+        //
+        public const int VK_SHIFT = 0x10;
+        public const int VK_CONTROL = 0x11;
+        public const int VK_MENU = 0x12;
+        public const int VK_RMENU = 0xA5;
+        public const int VK_RCONTROL = 0xA3;
+        public const int VK_NUMLOCK = 0x90;
+        public const int VK_INSERT = 0x2D;
+        public const int VK_DELETE = 0x2E;
+        public const int VK_HOME = 0x24;
+        public const int VK_END = 0x23;
+        public const int VK_PRIOR = 0x21;
+        public const int VK_NEXT = 0x22;
+        public const int VK_UP = 0x26;
+        public const int VK_DOWN = 0x28;
+        public const int VK_LEFT = 0x25;
+        public const int VK_RIGHT = 0x27;
+        public const int VK_APPS = 0x5D;
+        public const int VK_RWIN = 0x5C;
+        public const int VK_LWIN = 0x5B;
     }
 }

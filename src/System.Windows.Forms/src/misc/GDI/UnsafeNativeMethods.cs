@@ -23,6 +23,9 @@ namespace System.Windows.Forms.Internal
         [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
         public static extern int GetObjectW(HandleRef hFont, int nSize, ref NativeMethods.LOGFONTW pv);
 
+        [DllImport(ExternDll.Gdi32, SetLastError = true)]
+        internal static extern int GetObjectW(IntPtr hObject, int size, ref NativeMethods.LOGFONT lf);
+
         // Drawing.
 
         [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]

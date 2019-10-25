@@ -37,6 +37,9 @@ internal partial class Interop
         public static implicit operator RECT(Rectangle r)
             => new RECT(r);
 
+        public bool Empty
+            => left >= right || top >= bottom;
+
         public Size Size
             => new Size(right - left, bottom - top);
     }

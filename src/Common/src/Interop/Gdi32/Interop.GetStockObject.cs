@@ -11,7 +11,8 @@ internal static partial class Interop
     {
         public enum StockObject : int
         {
-            HOLLOW_BRUSH = 5
+            HOLLOW_BRUSH = 5,
+            SYSTEM_FONT = 10
         }
 
         [DllImport(Libraries.Gdi32, ExactSpelling = true)]

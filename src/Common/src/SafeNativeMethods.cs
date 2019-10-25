@@ -324,6 +324,9 @@ namespace System.Windows.Forms
         [DllImport(ExternDll.Ole32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern int DoDragDrop(IComDataObject dataObject, UnsafeNativeMethods.IOleDropSource dropSource, int allowedEffects, int[] finalEffect);
 
+        [DllImport(ExternDll.User32)]
+        public static extern int GetSysColor(int nIndex);
+
         [DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern IntPtr GetSysColorBrush(int nIndex);
 
@@ -388,8 +391,14 @@ namespace System.Windows.Forms
         [DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern bool IsWindowEnabled(HandleRef hWnd);
 
+        [DllImport(ExternDll.User32, ExactSpelling = true)]
+        internal static extern bool IsWindowEnabled(IntPtr hWnd);
+
         [DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern bool IsWindowVisible(HandleRef hWnd);
+
+        [DllImport(ExternDll.User32, ExactSpelling = true)]
+        internal static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern bool ReleaseCapture();
