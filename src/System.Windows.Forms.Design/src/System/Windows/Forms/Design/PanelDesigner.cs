@@ -12,8 +12,6 @@ namespace System.Windows.Forms.Design
     /// </devdoc>
     internal class PanelDesigner : ScrollableControlDesigner
     {
-
-
         public PanelDesigner()
         {
             AutoResizeHandles = true;
@@ -45,7 +43,6 @@ namespace System.Windows.Forms.Design
             pen.Dispose();
         }
 
-
         /// <include file='doc\PanelDesigner.uex' path='docs/doc[@for="PanelDesigner.OnPaintAdornments"]/*' />
         /// <devdoc>
         ///      Overrides our base class.  Here we check to see if there
@@ -63,7 +60,6 @@ namespace System.Windows.Forms.Design
 
             base.OnPaintAdornments(pe);
         }
-
 
         /// <devdoc>
         ///      Creates a Dashed-Pen of appropriate color.

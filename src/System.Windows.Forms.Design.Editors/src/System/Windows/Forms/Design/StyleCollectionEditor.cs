@@ -6,6 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
 
 namespace System.Windows.Forms.Design
 {
@@ -18,7 +21,6 @@ namespace System.Windows.Forms.Design
     /// </devdoc>
     internal class StyleCollectionEditor : CollectionEditor
     {
-
         private bool isRowCollection = false;
 
         protected string helptopic;
@@ -105,12 +107,10 @@ namespace System.Windows.Forms.Design
 
                 return base.ProcessDialogKey(keyData);
             }
-
         }
 
         protected class StyleEditorForm : CollectionEditor.CollectionForm
         {
-
             private StyleCollectionEditor editor = null;
             private bool isRowCollection = false;
             private TableLayoutPanel tlp = null;
@@ -118,7 +118,6 @@ namespace System.Windows.Forms.Design
             IComponentChangeService compSvc = null;
             private ArrayList deleteList = null;
 
-            //VSWhidbey #384104
             private bool isDialogDirty = false;
 
             private bool haveInvoked = false;
@@ -209,7 +208,6 @@ namespace System.Windows.Forms.Design
                 colStyleProp = TypeDescriptor.GetProperties(tlp)["ColumnStyles"];
 
                 tlpDesigner.SuspendEnsureAvailableStyles();
-
             }
 
             private void HookEvents()
@@ -241,9 +239,7 @@ namespace System.Windows.Forms.Design
                 this.helperLinkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnLink2Click);
             }
 
-
             #region Windows Form Designer generated code
-
             /// <summary>
             /// Required method for Designer support - do not modify
             /// the contents of this method with the code editor.
@@ -661,7 +657,6 @@ namespace System.Windows.Forms.Design
                     }
                 }
 
-
                 // We can't use ColumnCount/RowCount, since they are only guaranteed to reflect the true count
                 // when GrowMode == Fixed
                 int[] cw = tlp.GetColumnWidths();
@@ -694,6 +689,7 @@ namespace System.Windows.Forms.Design
                 //this will cause the listview to be initialized
                 columnsOrRowsComboBox.SelectedIndex = isRowCollection ? 1 : 0;
                 InitListView();
+
                 return base.ShowEditorDialog(edSvc);
             }
 
@@ -712,15 +708,12 @@ namespace System.Windows.Forms.Design
                 {
                     return string.Empty;
                 }
-
             }
-
 
             // Populate the listview with the correct values - happens when the dialog is brought up, or
             // when the user changes the selection in the combobox
             private void InitListView()
             {
-
                 columnsAndRowsListView.Items.Clear();
 
                 string baseName = isRowCollection ? "Row" : "Column"; //these should not be localized
@@ -729,7 +722,6 @@ namespace System.Windows.Forms.Design
 
                 for (int i = 0; i < styleCount; ++i)
                 {
-
                     string sizeType;
                     string sizeValue;
 
@@ -756,7 +748,6 @@ namespace System.Windows.Forms.Design
                 }
 
                 removeButton.Enabled = columnsAndRowsListView.Items.Count > 1; // we should already have something selected
-
             }
 
             private void UpdateListViewItem(int index, string member, string type, string value)
@@ -810,7 +801,6 @@ namespace System.Windows.Forms.Design
                     removeButton.Enabled = columnsAndRowsListView.Items.Count > 1;
                 }
 
-
                 if (coll.Count == 1)
                 {
                     //Get the index
@@ -823,7 +813,6 @@ namespace System.Windows.Forms.Design
                     {
                         UpdateGroupBox(tlp.ColumnStyles[index].SizeType, tlp.ColumnStyles[index].Width);
                     }
-
                 }
                 else
                 {
@@ -864,9 +853,7 @@ namespace System.Windows.Forms.Design
                     {
                         UpdateGroupBox(type, value);
                     }
-
                 }
-
             }
 
             private void OnListSelectionComplete(object sender, EventArgs e)
@@ -898,7 +885,6 @@ namespace System.Windows.Forms.Design
                 //Unhook the event while we reset.
                 //If we didn't the setting the value would cause OnValueChanged below to get called.
                 //If we then go ahead and update the listview, which we don't want in the reset case.
-                //VSWhidbey # 384035.
                 this.absoluteNumericUpDown.ValueChanged -= new System.EventHandler(this.OnValueChanged);
                 absoluteNumericUpDown.Enabled = false;
                 absoluteNumericUpDown.Value = DesignerUtils.MINIMUMSTYLESIZE;
@@ -910,7 +896,6 @@ namespace System.Windows.Forms.Design
                 //Unhook the event while we reset.
                 //If we didn't the setting the value would cause OnValueChanged below to get called.
                 //If we then go ahead and update the listview, which we don't want in the reset case.
-                //VSWhidbey # 384035.                
                 this.percentNumericUpDown.ValueChanged -= new System.EventHandler(this.OnValueChanged);
                 percentNumericUpDown.Enabled = false;
                 percentNumericUpDown.Value = DesignerUtils.MINIMUMSTYLEPERCENT;
@@ -997,14 +982,12 @@ namespace System.Windows.Forms.Design
 
                 if (member != null)
                 {
-                    columnsAndRowsListView.Items.Insert(index,
-                                                        new ListViewItem(new string[] { member, SizeType.Absolute.ToString(), DesignerUtils.MINIMUMSTYLESIZE.ToString(CultureInfo.InvariantCulture) }));
+                    columnsAndRowsListView.Items.Insert(index, new ListViewItem(new string[] { member, SizeType.Absolute.ToString(), DesignerUtils.MINIMUMSTYLESIZE.ToString(CultureInfo.InvariantCulture) }));
 
                     // If we inserted at the beginning, then we have to change the Member of string of all the existing listview items,
                     // so we might as well just update the entire listview.
                     UpdateListViewMember();
                     ClearAndSetSelectionAndFocus(index);
-
                 }
 
             }
@@ -1041,7 +1024,6 @@ namespace System.Windows.Forms.Design
                 // Remove from the end of the selection -- that way we have less things to adjust
                 for (int i = columnsAndRowsListView.SelectedIndices.Count - 1; i >= 0; i--)
                 {
-
                     int index = columnsAndRowsListView.SelectedIndices[i];
 
                     // First update any controls in any row/col that's AFTER the row/col we are deleting
@@ -1069,9 +1051,7 @@ namespace System.Windows.Forms.Design
                 // so we might as well just update the entire listview.
                 UpdateListViewMember();
                 ClearAndSetSelectionAndFocus(newIndex);
-
             }
-
 
             private void UpdateTypeAndValue(SizeType type, float value)
             {
@@ -1104,7 +1084,6 @@ namespace System.Windows.Forms.Design
                 ResetPercent();
             }
 
-
             private void OnPercentEnter(object sender, EventArgs e)
             {
                 isDialogDirty = true;
@@ -1112,7 +1091,6 @@ namespace System.Windows.Forms.Design
                 percentNumericUpDown.Enabled = true;
                 ResetAbsolute();
             }
-
 
             private void OnAutoSizeEnter(object sender, EventArgs e)
             {
@@ -1136,7 +1114,6 @@ namespace System.Windows.Forms.Design
                 }
             }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Portability", "CA1902:AvoidTestingForFloatingPointEquality")]
             private void NormalizePercentStyle(bool normalizeRow)
             {
                 int count = normalizeRow ? tlp.RowStyles.Count : tlp.ColumnStyles.Count;
@@ -1199,15 +1176,12 @@ namespace System.Windows.Forms.Design
             /// </devdoc>
             private void NormalizePercentStyles()
             {
-
                 NormalizePercentStyle(true /* row */);
                 NormalizePercentStyle(false /* column */);
-
             }
 
             private void OnOkButtonClick(object sender, EventArgs e)
             {
-
                 if (isDialogDirty)
                 {
                     if (absoluteRadioButton.Checked)
@@ -1225,7 +1199,6 @@ namespace System.Windows.Forms.Design
 
                     // Now normalize all percentages...
                     NormalizePercentStyles();
-
 
                     // IF YOU CHANGE THIS, YOU SHOULD ALSO CHANGE THE CODE IN TableLayoutPanelDesigner.OnRemoveInternal
                     if (deleteList.Count > 0)
@@ -1280,7 +1253,6 @@ namespace System.Windows.Forms.Design
                 }
                 tlpDesigner.ResumeEnsureAvailableStyles(true);
                 tlp.ResumeLayout();
-
             }
 
             private void OnCancelButtonClick(object sender, EventArgs e)
@@ -1289,8 +1261,6 @@ namespace System.Windows.Forms.Design
                 tlp.ResumeLayout();
                 DialogResult = DialogResult.Cancel;
             }
-
         }
-
     }
 }

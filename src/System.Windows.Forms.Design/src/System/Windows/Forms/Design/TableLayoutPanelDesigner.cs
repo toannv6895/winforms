@@ -20,7 +20,6 @@ namespace System.Windows.Forms.Design
     /// </devdoc>
     internal class TableLayoutPanelDesigner : FlowPanelDesigner
     {
-
         private TableLayoutPanelBehavior tlpBehavior;//every resize col/row glyph is associated with this instance of behavior
         private Point droppedCellPosition = InvalidPoint;//used to insert new children
 
