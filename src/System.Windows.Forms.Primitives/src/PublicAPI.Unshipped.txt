@@ -1,3 +1,4 @@
+#nullable enable
 System.Windows.Forms.Automation.AutomationLiveSetting
 System.Windows.Forms.Automation.AutomationLiveSetting.Assertive = 2 -> System.Windows.Forms.Automation.AutomationLiveSetting
 System.Windows.Forms.Automation.AutomationLiveSetting.Off = 0 -> System.Windows.Forms.Automation.AutomationLiveSetting

@@ -1,3 +1,4 @@
+#nullable enable
 System.ComponentModel.Design.MenuCommandService
 System.ComponentModel.Design.MenuCommandService.Dispose() -> void
 System.ComponentModel.Design.MenuCommandService.EnsureVerbs() -> void
