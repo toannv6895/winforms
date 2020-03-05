@@ -60,6 +60,7 @@ namespace System.Windows.Forms
 
             internal override void RemoveReflectChild()
             {
+                Debugger.Launch();
                 if (--_childCount < 0)
                 {
                     Debug.Fail("How did parkingwindow childcount go negative???");

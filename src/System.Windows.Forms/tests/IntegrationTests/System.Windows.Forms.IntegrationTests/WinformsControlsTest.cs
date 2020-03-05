@@ -5,17 +5,68 @@
 using System.Diagnostics;
 using System.Windows.Forms.IntegrationTests.Common;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace System.Windows.Forms.IntegrationTests
 {
     public partial class WinformsControlsTest
     {
+        private readonly ITestOutputHelper _output;
         private const string ProjectName = "WinformsControlsTest";
         private readonly string _exePath;
 
-        public WinformsControlsTest()
+        public WinformsControlsTest(ITestOutputHelper output)
         {
+            _output = output;
             _exePath = TestHelpers.GetExePath(ProjectName);
+        }
+
+        [WinFormsFact]
+        public void Control_can_be_collected_by_GC()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                CreateCollectableControl();
+            }
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect(0, GCCollectionMode.Forced);
+        }
+
+        private void CreateCollectableControl()
+        {
+            var form = new Form();
+            form.Show();
+
+            var control = new CollectableControl { Logger = _output };
+            control.Location = new Drawing.Point(8, 8);
+            control.Size = new Drawing.Size(100, 100);
+            control.Visible = true;
+            form.Controls.Add(control);
+
+            //form.Controls.Clear();
+        }
+
+        private class CollectableControl : Control
+        {
+            public ITestOutputHelper Logger { get; set; }
+
+            public void EnsureHandleCreated() => CreateHandle();
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    throw new ApplicationException("Diposed by user");
+                }
+                else
+                {
+                    Logger.WriteLine("Collected by GC!");
+                    //throw new ApplicationException("Collected by GC!");
+                    base.Dispose(disposing);
+                }
+            }
         }
 
         [Fact]
@@ -329,7 +380,7 @@ namespace System.Windows.Forms.IntegrationTests
             form.Show();
 
             // bindings set
-            Assert.True( mainObject.IsPropertyChangedAssigned);
+            Assert.True(mainObject.IsPropertyChangedAssigned);
 
             // remove bindings
             textBox.DataBindings.Clear();
