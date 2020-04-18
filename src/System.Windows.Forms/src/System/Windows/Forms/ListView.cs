@@ -5400,7 +5400,7 @@ namespace System.Windows.Forms
             var lvgroup = new LVGROUPW
             {
                 cbSize = (uint)sizeof(LVGROUPW),
-                mask = LVGF.HEADER | LVGF.FOOTER | LVGF.ALIGN | additionalMask,
+                mask = LVGF.HEADER | LVGF.FOOTER | LVGF.ALIGN | additionalMask | LVGF.STATE,
                 cchHeader = header.Length,
                 iGroupId = group.ID
             };
@@ -5416,6 +5416,11 @@ namespace System.Windows.Forms
                 case HorizontalAlignment.Center:
                     lvgroup.uAlign = LVGA.HEADER_CENTER;
                     break;
+            }
+
+            if (group.Collapsible)
+            {
+                lvgroup.state |= LVGS.COLLAPSIBLE;
             }
 
             fixed (char* pHeader = header)
