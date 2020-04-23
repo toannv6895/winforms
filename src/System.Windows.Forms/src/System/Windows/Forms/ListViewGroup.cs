@@ -25,6 +25,7 @@ namespace System.Windows.Forms
         private string _footer;
         private HorizontalAlignment _footerAlignment = HorizontalAlignment.Left;
         private bool _collapsible = false;
+        private bool _collapsed = false;
 
         private ListView.ListViewItemCollection _items;
 
@@ -161,6 +162,10 @@ namespace System.Windows.Forms
             }
         }
 
+
+        /// <summary>
+        ///  Controls whether items in group are collapsible.
+        /// </summary>
         [DefaultValue(false)]
         [SRCategory(nameof(SR.CatAppearance))]
         public bool Collapsible
@@ -171,6 +176,24 @@ namespace System.Windows.Forms
                 if (_collapsible != value)
                 {
                     _collapsible = value;
+                    UpdateListView();
+                }
+            }
+        }
+
+        /// <summary>
+        ///  Controls whether items in group are collapsed.
+        /// </summary>
+        [DefaultValue(false)]
+        [SRCategory(nameof(SR.CatAppearance))]
+        public bool Collapsed
+        {
+            get => _collapsed;
+            set
+            {
+                if (Collapsible && _collapsed != value)
+                {
+                    _collapsed = value;
                     UpdateListView();
                 }
             }

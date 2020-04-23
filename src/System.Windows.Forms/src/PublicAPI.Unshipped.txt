@@ -1,2 +1,4 @@
+System.Windows.Forms.ListViewGroup.Collapsed.get -> bool
+System.Windows.Forms.ListViewGroup.Collapsed.set -> void
 System.Windows.Forms.ListViewGroup.Collapsible.get -> bool
 System.Windows.Forms.ListViewGroup.Collapsible.set -> void

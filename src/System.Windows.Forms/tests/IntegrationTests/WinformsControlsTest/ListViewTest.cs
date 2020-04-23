@@ -38,6 +38,7 @@ namespace WinformsControlsTest
             };
             listView1.Groups[0].Footer = "hi";
             listView1.Groups[0].Collapsible = true;
+            listView1.Groups[0].Collapsed = true;
         }
 
         private void CreateMyListView()

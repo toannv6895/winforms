@@ -5407,7 +5407,7 @@ namespace System.Windows.Forms
 
             if (group.Collapsible)
             {
-                lvgroup = PopulateCollapseSetting(group, lvgroup);
+                lvgroup = SetUpGroupCollapse(group, lvgroup);
             }
 
             switch (group.HeaderAlignment)
@@ -5446,8 +5446,12 @@ namespace System.Windows.Forms
             }
         }
 
-        private LVGROUPW PopulateCollapseSetting(ListViewGroup group, LVGROUPW lvgroup) {
+        private LVGROUPW SetUpGroupCollapse(ListViewGroup group, LVGROUPW lvgroup) {
             lvgroup.state |= LVGS.COLLAPSIBLE;
+            if (group.Collapsed)
+            {
+                lvgroup.state |= LVGS.COLLAPSED;
+            }
             return lvgroup;
         }
 
