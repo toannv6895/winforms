@@ -21,6 +21,7 @@ namespace WinformsControlsTest
 
             var random = new Random();
             int i = random.Next(100, 300);
+
             Debug.WriteLine(listView1.TileSize);
             listView1.TileSize = new Size(50, 50);
             listView1.Items[0].ImageIndex = 0;
@@ -35,6 +36,7 @@ namespace WinformsControlsTest
                 var index = listView1.InsertionMark.NearestIndex(pos);
                 Console.WriteLine($"nearest index: {index}");
             };
+            listView1.Groups[0].Footer = "hi";
             listView1.Groups[0].Collapsible = true;
         }
 

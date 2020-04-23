@@ -5400,10 +5400,15 @@ namespace System.Windows.Forms
             var lvgroup = new LVGROUPW
             {
                 cbSize = (uint)sizeof(LVGROUPW),
-                mask = LVGF.HEADER | LVGF.FOOTER | LVGF.ALIGN | additionalMask | LVGF.STATE,
+                mask = LVGF.HEADER | LVGF.FOOTER | LVGF.ALIGN | LVGF.STATE | additionalMask,
                 cchHeader = header.Length,
                 iGroupId = group.ID
             };
+
+            if (group.Collapsible)
+            {
+                lvgroup = PopulateCollapseSetting(group, lvgroup);
+            }
 
             switch (group.HeaderAlignment)
             {
@@ -5416,11 +5421,6 @@ namespace System.Windows.Forms
                 case HorizontalAlignment.Center:
                     lvgroup.uAlign = LVGA.HEADER_CENTER;
                     break;
-            }
-
-            if (group.Collapsible)
-            {
-                lvgroup.state |= LVGS.COLLAPSIBLE;
             }
 
             fixed (char* pHeader = header)
@@ -5444,6 +5444,11 @@ namespace System.Windows.Forms
                 lvgroup.pszHeader = pHeader;
                 return User32.SendMessageW(this, (User32.WM)msg, lParam, ref lvgroup);
             }
+        }
+
+        private LVGROUPW PopulateCollapseSetting(ListViewGroup group, LVGROUPW lvgroup) {
+            lvgroup.state |= LVGS.COLLAPSIBLE;
+            return lvgroup;
         }
 
         // ListViewGroupCollection::Clear needs to remove the items from the Default group
