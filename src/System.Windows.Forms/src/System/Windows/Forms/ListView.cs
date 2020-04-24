@@ -5960,10 +5960,9 @@ namespace System.Windows.Forms
 
             var lvhi = new LVHITTESTINFO
             {
-                pt = (POINT)pos
+                pt = (POINT)pos,
             };
-
-            return (int)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, IntPtr.Zero, ref lvhi);
+            return (int)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi);
         }
 
         internal void RecreateHandleInternal()
@@ -6426,7 +6425,15 @@ namespace System.Windows.Forms
 
                     // see the mouse is on item
                     //
-                    int index = GetIndexOfClickedItem();
+                    //int index = GetIndexOfClickedItem();
+                    Point pos = Cursor.Position;
+                    pos = PointToClient(pos);
+
+                    var lvhi = new LVHITTESTINFO
+                    {
+                        pt = (POINT)pos,
+                    };
+                    int index = (int)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi);
 
                     if (!ValidationCancelled && listViewState[LISTVIEWSTATE_doubleclickFired] && index != -1)
                     {
@@ -6439,7 +6446,11 @@ namespace System.Windows.Forms
                         OnMouseUp(new MouseEventArgs(downButton, 1, PARAM.SignedLOWORD(m.LParam), PARAM.SignedHIWORD(m.LParam), 0));
                         listViewState[LISTVIEWSTATE_expectingMouseUp] = false;
                     }
-
+                    if (index != -1 && ((lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE))
+                    {
+                        this.groups[index].Collapsed = !this.groups[index].Collapsed;
+                    } 
+                    
                     ItemCollectionChangedInMouseDown = false;
 
                     listViewState[LISTVIEWSTATE_mouseUpFired] = true;
