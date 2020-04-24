@@ -32,6 +32,8 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Null(group.Name);
             Assert.Null(group.Tag);
+            Assert.False(group.Collapsible);
+            Assert.False(group.Collapsed);
         }
 
         [WinFormsTheory]
@@ -48,6 +50,8 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Null(group.Name);
             Assert.Null(group.Tag);
+            Assert.False(group.Collapsible);
+            Assert.False(group.Collapsed);
         }
 
         public static IEnumerable<object[]> Ctor_String_HorizontalAlignment_TestData()
@@ -73,6 +77,8 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Null(group.Name);
             Assert.Null(group.Tag);
+            Assert.False(group.Collapsible);
+            Assert.False(group.Collapsed);
         }
 
         public static IEnumerable<object[]> Ctor_String_String_TestData()
@@ -96,6 +102,8 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Equal(key, group.Name);
             Assert.Null(group.Tag);
+            Assert.False(group.Collapsible);
+            Assert.False(group.Collapsed);
         }
 
         [WinFormsTheory]
@@ -741,6 +749,23 @@ namespace System.Windows.Forms.Tests
             ISerializable iSerializable = group;
             var context = new StreamingContext();
             Assert.Throws<NullReferenceException>(() => iSerializable.GetObjectData(null, context));
+        }
+
+        [WinFormsFact]
+        public void ListViewGroup_Collapse_ReturnsExpected()
+        {
+            // check if collapsed sets when collapsible false
+            var group = new ListViewGroup()
+            {
+                Collapsible = false,
+                Collapsed = true
+            };
+            Assert.False(group.Collapsed);
+
+            // check if collapsed still same once collapsible set true
+            group.Collapsible = true;
+            Assert.True(group.Collapsible);
+            Assert.False(group.Collapsed);
         }
     }
 }
