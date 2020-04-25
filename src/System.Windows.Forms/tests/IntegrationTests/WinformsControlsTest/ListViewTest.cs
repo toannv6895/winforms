@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -14,7 +15,7 @@ namespace WinformsControlsTest
         public ListViewTest()
         {
             InitializeComponent();
-            //CreateMyListView();
+            CreateMyListView();
 
             listView1.LabelEdit = true;
             listView1.View = View.Tile;
@@ -24,9 +25,9 @@ namespace WinformsControlsTest
 
             Debug.WriteLine(listView1.TileSize);
             listView1.TileSize = new Size(50, 50);
-            //listView1.Items[0].ImageIndex = 0;
-            //listView1.Items[1].ImageIndex = 1;
-            //listView1.Items[2].ImageIndex = 2;
+            listView1.Items[0].ImageIndex = 0;
+            listView1.Items[1].ImageIndex = 1;
+            listView1.Items[2].ImageIndex = 2;
             listView1.Click += (s, e) =>
             {
                 //listView1.TileSize = new Size(random.Next(100, 300), random.Next(25, 50));
@@ -40,9 +41,26 @@ namespace WinformsControlsTest
             listView1.Groups[0].Collapsible = true;
             var lv = new ListViewGroup
             {
-                Name = "test"
+                Name = "test",
+                Collapsible = true
             };
             listView1.Groups.Add(lv);
+            listView1.Items.Add(new ListViewItem
+            {
+                Text = "t",
+                Group = listView1.Groups[1]
+            });
+            var lv2 = new ListViewGroup
+            {
+                Name = "test",
+                Collapsible = true
+            };
+            listView1.Groups.Add(lv2);
+            listView1.Items.Add(new ListViewItem
+            {
+                Text = "t",
+                Group = listView1.Groups[2]
+            });
         }
 
         private void CreateMyListView()

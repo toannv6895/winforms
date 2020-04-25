@@ -5955,6 +5955,12 @@ namespace System.Windows.Forms
 
         private int GetIndexOfClickedItem()
         {
+            var lvhi = SetUpHitTestInfo();
+            return (int)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, IntPtr.Zero, ref lvhi);
+        }
+
+        private LVHITTESTINFO SetUpHitTestInfo ()
+        {
             Point pos = Cursor.Position;
             pos = PointToClient(pos);
 
@@ -5962,7 +5968,8 @@ namespace System.Windows.Forms
             {
                 pt = (POINT)pos,
             };
-            return (int)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi);
+
+            return lvhi;
         }
 
         internal void RecreateHandleInternal()
@@ -6423,17 +6430,9 @@ namespace System.Windows.Forms
                 case User32.WM.RBUTTONUP:
                 case User32.WM.MBUTTONUP:
 
+                    var lvhi = SetUpHitTestInfo();
                     // see the mouse is on item
-                    //
-                    //int index = GetIndexOfClickedItem();
-                    Point pos = Cursor.Position;
-                    pos = PointToClient(pos);
-
-                    var lvhi = new LVHITTESTINFO
-                    {
-                        pt = (POINT)pos,
-                    };
-                    int index = (int)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi);
+                    int index = (int)User32.SendMessageW(this, (User32.WM)LVM.SUBITEMHITTEST, (IntPtr)(-1), ref lvhi);
 
                     if (!ValidationCancelled && listViewState[LISTVIEWSTATE_doubleclickFired] && index != -1)
                     {
@@ -6441,16 +6440,22 @@ namespace System.Windows.Forms
                         OnDoubleClick(EventArgs.Empty);
                         OnMouseDoubleClick(new MouseEventArgs(downButton, 2, PARAM.SignedLOWORD(m.LParam), PARAM.SignedHIWORD(m.LParam), 0));
                     }
+                    if (index != -1 && ((lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE))
+                    {
+                        foreach (ListViewGroup targetGroup in groups)
+                        {
+                            if (targetGroup.ID == index) //looks at ID 'cuz index is item ID
+                            {
+                                targetGroup.Collapsed = !targetGroup.Collapsed;
+                            }
+                        }
+                    }
                     if (!listViewState[LISTVIEWSTATE_mouseUpFired])
                     {
                         OnMouseUp(new MouseEventArgs(downButton, 1, PARAM.SignedLOWORD(m.LParam), PARAM.SignedHIWORD(m.LParam), 0));
                         listViewState[LISTVIEWSTATE_expectingMouseUp] = false;
                     }
-                    if (index != -1 && ((lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE))
-                    {
-                        this.groups[index].Collapsed = !this.groups[index].Collapsed;
-                    } 
-                    
+
                     ItemCollectionChangedInMouseDown = false;
 
                     listViewState[LISTVIEWSTATE_mouseUpFired] = true;

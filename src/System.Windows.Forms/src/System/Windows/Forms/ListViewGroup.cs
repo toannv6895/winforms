@@ -162,9 +162,8 @@ namespace System.Windows.Forms
             }
         }
 
-
         /// <summary>
-        ///  Specifies whether items in this group are collapsible.
+        ///  Controls whether items in group are collapsible.
         /// </summary>
         [DefaultValue(false)]
         [SRCategory(nameof(SR.CatAppearance))]
@@ -182,7 +181,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Specifies whether items in this group are collapsed.
+        ///  Controls whether items in group are collapsed.
         /// </summary>
         [DefaultValue(false)]
         [SRCategory(nameof(SR.CatAppearance))]
