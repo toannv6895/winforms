@@ -5,7 +5,6 @@
 #nullable disable
 
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -20,8 +19,6 @@ namespace System.Windows.Forms
         private readonly ListView _listView;
 
         private ArrayList _list;
-
-        private Dictionary<int, ListViewGroup> _IDToGroup;
 
         internal ListViewGroupCollection(ListView listView)
         {
@@ -39,8 +36,6 @@ namespace System.Windows.Forms
         bool IList.IsReadOnly => false;
 
         private ArrayList List => _list ?? (_list = new ArrayList());
-
-        private Dictionary<int, ListViewGroup> IDToGroup => _IDToGroup ?? (_IDToGroup = new Dictionary<int, ListViewGroup>());
 
         public ListViewGroup this[int index]
         {
@@ -124,11 +119,6 @@ namespace System.Windows.Forms
             }
         }
 
-        public ListViewGroup GetByID (int ID)
-        {
-            return IDToGroup.ContainsKey(ID) ? IDToGroup[ID] : null;
-         }
-
         public int Add(ListViewGroup group)
         {
             if (group == null)
@@ -144,7 +134,6 @@ namespace System.Windows.Forms
             CheckListViewItems(group);
             group.ListView = _listView;
             int index = List.Add(group);
-            IDToGroup.Add(group.ID, group);
             if (_listView.IsHandleCreated)
             {
                 _listView.InsertGroupInListView(List.Count, group);
@@ -226,7 +215,6 @@ namespace System.Windows.Forms
             }
 
             List.Clear();
-            IDToGroup.Clear();
 
             // we have to tell the listView that there are no more groups
             // so the list view knows to remove items from the default group
@@ -276,7 +264,6 @@ namespace System.Windows.Forms
             CheckListViewItems(group);
             group.ListView = _listView;
             List.Insert(index, group);
-            IDToGroup.Add(group.ID, group);
             if (_listView.IsHandleCreated)
             {
                 _listView.InsertGroupInListView(index, group);
@@ -309,7 +296,6 @@ namespace System.Windows.Forms
         {
             group.ListView = null;
             List.Remove(group);
-            IDToGroup.Remove(group.ID);
 
             if (_listView.IsHandleCreated)
             {

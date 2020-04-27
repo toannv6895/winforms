@@ -618,6 +618,45 @@ namespace System.Windows.Forms.Tests
             Assert.Throws<InvalidEnumArgumentException>("value", () => group.HeaderAlignment = value);
         }
 
+        public static IEnumerable<object[]> Collapse_TestData()
+        {
+            yield return new object[] { true, true, true, true };
+            yield return new object[] { false, true, false, false };
+            yield return new object[] { true, false, true, false };
+            yield return new object[] { false, false, false, false };
+        }
+
+        [WinFormsTheory]
+        [MemberData(nameof(Collapse_TestData))]
+        public void ListViewGroup_Collapse_SetWithoutListView_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
+        {
+            var group = new ListViewGroup()
+            {
+                Collapsible = collapsible,
+                Collapsed = collapsed
+            };
+            Assert.Equal(expectedCollapsible, group.Collapsible);
+            Assert.Equal(expectedCollapsed, group.Collapsed);
+        }
+
+        [WinFormsTheory]
+        [MemberData(nameof(Collapse_TestData))]
+        public void ListViewGroup_Collapse_SetWithListView_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
+        {
+            using var listView = new ListView();
+            var group = new ListViewGroup
+            {
+                Collapsible = collapsible,
+                Collapsed = collapsed
+            };
+            listView.Groups.Add(group);
+
+            Assert.Equal(expectedCollapsible, group.Collapsible);
+            Assert.Equal(expectedCollapsed, group.Collapsed);
+            Assert.Equal(group.Collapsible, listView.Groups[0].Collapsible);
+            Assert.Equal(group.Collapsed, listView.Groups[0].Collapsed);
+        }
+
         [WinFormsTheory]
         [CommonMemberData(nameof(CommonTestHelper.GetStringWithNullTheoryData))]
         public void ListViewGroup_Name_Set_GetReturnsExpected(string value)
@@ -749,23 +788,6 @@ namespace System.Windows.Forms.Tests
             ISerializable iSerializable = group;
             var context = new StreamingContext();
             Assert.Throws<NullReferenceException>(() => iSerializable.GetObjectData(null, context));
-        }
-
-        [WinFormsFact]
-        public void ListViewGroup_Collapse_ReturnsExpected()
-        {
-            // check if collapsed sets when collapsible false
-            var group = new ListViewGroup()
-            {
-                Collapsible = false,
-                Collapsed = true
-            };
-            Assert.False(group.Collapsed);
-
-            // check if collapsed still same once collapsible set true
-            group.Collapsible = true;
-            Assert.True(group.Collapsible);
-            Assert.False(group.Collapsed);
         }
     }
 }
