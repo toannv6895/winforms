@@ -6442,12 +6442,18 @@ namespace System.Windows.Forms
                     }
                     if (index != -1 && ((lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE))
                     {
-                        foreach (ListViewGroup targetGroup in groups)
+                        //foreach (ListViewGroup targetGroup in groups)
+                        //{
+                        //    if (targetGroup.ID == index) //looks at ID 'cuz index is group ID
+                        //    {
+                        //        targetGroup.Collapsed = !targetGroup.Collapsed;
+                        //        break;
+                        //    }
+                        //}
+                        ListViewGroup targetGroup = groups.GetByID(index);
+                        if (targetGroup != null)
                         {
-                            if (targetGroup.ID == index) //looks at ID 'cuz index is item ID
-                            {
-                                targetGroup.Collapsed = !targetGroup.Collapsed;
-                            }
+                            targetGroup.Collapsed = !targetGroup.Collapsed;
                         }
                     }
                     if (!listViewState[LISTVIEWSTATE_mouseUpFired])
