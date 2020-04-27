@@ -37,30 +37,7 @@ namespace WinformsControlsTest
                 var index = listView1.InsertionMark.NearestIndex(pos);
                 Console.WriteLine($"nearest index: {index}");
             };
-            listView1.Groups[0].Footer = "hi";
-            listView1.Groups[0].Collapsible = true;
-            var lv = new ListViewGroup
-            {
-                Name = "test",
-                Collapsible = true
-            };
-            listView1.Groups.Add(lv);
-            listView1.Items.Add(new ListViewItem
-            {
-                Text = "t",
-                Group = listView1.Groups[1]
-            });
-            var lv2 = new ListViewGroup
-            {
-                Name = "test",
-                Collapsible = true
-            };
-            listView1.Groups.Add(lv2);
-            listView1.Items.Add(new ListViewItem
-            {
-                Text = "t",
-                Group = listView1.Groups[2]
-            });
+            AddCollapsibleGroupToListView();
         }
 
         private void CreateMyListView()
@@ -163,6 +140,37 @@ namespace WinformsControlsTest
             // Change a ListViewGroup's header.
             listView2.Groups[0].HeaderAlignment = HorizontalAlignment.Center;
             listView2.Groups[0].Header = "NewText";
+        }
+
+        private void AddCollapsibleGroupToListView()
+        {
+            // check if group will be collapsed, it shouldn't be
+            listView1.Groups[0].Collapsible = false;
+            listView1.Groups[0].Collapsed = true;
+
+            var lv = new ListViewGroup
+            {
+                Header = "LV1",
+                Collapsible = true
+            };
+            listView1.Groups.Add(lv);
+            listView1.Items.Add(new ListViewItem
+            {
+                Text = "Item",
+                Group = listView1.Groups[1]
+            });
+            var lv2 = new ListViewGroup
+            {
+                Header = "LV2",
+                Collapsible = true,
+                Collapsed = true
+            };
+            listView1.Groups.Add(lv2);
+            listView1.Items.Add(new ListViewItem
+            {
+                Text = "Item",
+                Group = listView1.Groups[2]
+            });
         }
 
         private void listView2_Click(object sender, System.EventArgs e)
