@@ -5972,6 +5972,27 @@ namespace System.Windows.Forms
             return lvhi;
         }
 
+        private int UpdateGroupCollapse(Interop.User32.WM clickType)
+        {
+            var lvhi = SetUpHitTestInfo();
+            // see the mouse is on a group
+            int index = (int)User32.SendMessageW(this, (User32.WM)LVM.SUBITEMHITTEST, (IntPtr)(-1), ref lvhi);
+            bool groupHeaderDblClked = lvhi.flags == LVHT.EX_GROUP_HEADER && clickType == User32.WM.LBUTTONDBLCLK; //check if group header double clicked
+            bool chevronClked = (lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE && clickType == User32.WM.LBUTTONUP; //check if chevron clicked
+            if (index != -1 && (groupHeaderDblClked || chevronClked))
+            {
+                foreach (ListViewGroup targetGroup in groups)
+                {
+                    if (targetGroup.ID == index) //looks at ID 'cuz index is group ID
+                    {
+                        targetGroup.Collapsed = !targetGroup.Collapsed;
+                        break;
+                    }
+                }
+            }
+            return index;
+        }
+
         internal void RecreateHandleInternal()
         {
             //
@@ -6415,6 +6436,7 @@ namespace System.Windows.Forms
                     ItemCollectionChangedInMouseDown = false;
                     Capture = true;
                     WmMouseDown(ref m, MouseButtons.Left, 2);
+                    UpdateGroupCollapse(User32.WM.LBUTTONDBLCLK);
                     break;
 
                 case User32.WM.LBUTTONDOWN:
@@ -6430,26 +6452,14 @@ namespace System.Windows.Forms
                 case User32.WM.RBUTTONUP:
                 case User32.WM.MBUTTONUP:
 
-                    var lvhi = SetUpHitTestInfo();
                     // see the mouse is on item
-                    int index = (int)User32.SendMessageW(this, (User32.WM)LVM.SUBITEMHITTEST, (IntPtr)(-1), ref lvhi);
+                    int index = UpdateGroupCollapse(User32.WM.LBUTTONUP);
 
                     if (!ValidationCancelled && listViewState[LISTVIEWSTATE_doubleclickFired] && index != -1)
                     {
                         listViewState[LISTVIEWSTATE_doubleclickFired] = false;
                         OnDoubleClick(EventArgs.Empty);
                         OnMouseDoubleClick(new MouseEventArgs(downButton, 2, PARAM.SignedLOWORD(m.LParam), PARAM.SignedHIWORD(m.LParam), 0));
-                    }
-                    if (index != -1 && ((lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE))
-                    {
-                        foreach (ListViewGroup targetGroup in groups)
-                        {
-                            if (targetGroup.ID == index) //looks at ID 'cuz index is group ID
-                            {
-                                targetGroup.Collapsed = !targetGroup.Collapsed;
-                                break;
-                            }
-                        }
                     }
                     if (!listViewState[LISTVIEWSTATE_mouseUpFired])
                     {
