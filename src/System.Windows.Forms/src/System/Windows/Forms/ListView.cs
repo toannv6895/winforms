@@ -5966,7 +5966,7 @@ namespace System.Windows.Forms
 
             var lvhi = new LVHITTESTINFO
             {
-                pt = (POINT)pos,
+                pt = (POINT)pos
             };
 
             return lvhi;
