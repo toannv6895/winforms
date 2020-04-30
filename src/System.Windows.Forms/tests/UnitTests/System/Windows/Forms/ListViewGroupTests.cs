@@ -637,6 +637,12 @@ namespace System.Windows.Forms.Tests
             };
             Assert.Equal(expectedCollapsible, group.Collapsible);
             Assert.Equal(expectedCollapsed, group.Collapsed);
+
+            // Set same.
+            group.Collapsible = collapsible;
+            group.Collapsed = collapsed;
+            Assert.Equal(expectedCollapsible, group.Collapsible);
+            Assert.Equal(expectedCollapsed, group.Collapsed);
         }
 
         [WinFormsTheory]
@@ -655,6 +661,104 @@ namespace System.Windows.Forms.Tests
             Assert.Equal(expectedCollapsed, group.Collapsed);
             Assert.Equal(group.Collapsible, listView.Groups[0].Collapsible);
             Assert.Equal(group.Collapsed, listView.Groups[0].Collapsed);
+            Assert.False(listView.IsHandleCreated);
+
+            // Set same.
+            group.Collapsible = collapsible;
+            group.Collapsed = collapsed;
+            Assert.Equal(expectedCollapsible, group.Collapsible);
+            Assert.Equal(expectedCollapsed, group.Collapsed);
+            Assert.Equal(group.Collapsible, listView.Groups[0].Collapsible);
+            Assert.Equal(group.Collapsed, listView.Groups[0].Collapsed);
+            Assert.False(listView.IsHandleCreated);
+        }
+
+        [WinFormsTheory]
+        [MemberData(nameof(Collapse_TestData))]
+        public void ListViewGroup_Collapse_SetWithListViewWithHandle_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
+        {
+            using var listView = new ListView();
+            var group = new ListViewGroup
+            {
+                Collapsible = collapsible,
+                Collapsed = collapsed
+            };
+            listView.Groups.Add(group);
+            Assert.NotEqual(IntPtr.Zero, listView.Handle);
+            int invalidatedCallCount = 0;
+            listView.Invalidated += (sender, e) => invalidatedCallCount++;
+            int styleChangedCallCount = 0;
+            listView.StyleChanged += (sender, e) => styleChangedCallCount++;
+            int createdCallCount = 0;
+            listView.HandleCreated += (sender, e) => createdCallCount++;
+
+            Assert.Equal(expectedCollapsible, group.Collapsible);
+            Assert.Equal(expectedCollapsed, group.Collapsed);
+            Assert.True(listView.IsHandleCreated);
+            Assert.Equal(0, invalidatedCallCount);
+            Assert.Equal(0, styleChangedCallCount);
+            Assert.Equal(0, createdCallCount);
+
+            // Set same.
+            group.Collapsible = collapsible;
+            group.Collapsed = collapsed;
+            Assert.Equal(expectedCollapsible, group.Collapsible);
+            Assert.Equal(expectedCollapsed, group.Collapsed);
+            Assert.True(listView.IsHandleCreated);
+            Assert.Equal(0, invalidatedCallCount);
+            Assert.Equal(0, styleChangedCallCount);
+            Assert.Equal(0, createdCallCount);
+        }
+
+        [WinFormsFact(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
+        public unsafe void ListViewGroup_Collapse_GetGroupInfo_Success()
+        {
+            // Run this from another thread as we call Application.EnableVisualStyles.
+            using RemoteInvokeHandle invokerHandle = RemoteExecutor.Invoke(() =>
+            {
+                foreach (object[] data in Collapse_TestData())
+                {
+                    Application.EnableVisualStyles();
+
+                    using var listView = new ListView();
+                    var group = new ListViewGroup();
+                    listView.Groups.Add(group);
+
+                    Assert.NotEqual(IntPtr.Zero, listView.Handle);
+                    group.Collapsible = (bool)data[0];
+                    group.Collapsed = (bool)data[1];
+                    bool expectedCollapsible = (bool)data[2];
+                    bool expectedCollapsed = (bool)data[3];
+
+                    Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPCOUNT, IntPtr.Zero, IntPtr.Zero));
+                    var lvgroup = new LVGROUPW
+                    {
+                        cbSize = (uint)sizeof(LVGROUPW),
+                        mask = LVGF.STATE | LVGF.GROUPID,
+                        stateMask = LVGS.COLLAPSIBLE | LVGS.COLLAPSED
+                    };
+
+                    Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPINFOBYINDEX, (IntPtr)0, ref lvgroup));
+                    Assert.True(lvgroup.iGroupId >= 0);
+                    Assert.Equal(expectedCollapsible, group.Collapsible);
+                    Assert.Equal(expectedCollapsed, group.Collapsed);
+                    if (!expectedCollapsible)
+                    {
+                        Assert.Equal(LVGS.NORMAL, lvgroup.state);
+                    }
+                    else if (expectedCollapsible && !expectedCollapsed)
+                    {
+                        Assert.Equal(LVGS.COLLAPSIBLE, lvgroup.state);
+                    }
+                    else
+                    {
+                        Assert.Equal(LVGS.COLLAPSIBLE | LVGS.COLLAPSED, lvgroup.state);
+                    }
+                }
+            });
+
+            // verify the remote process succeeded
+            Assert.Equal(0, invokerHandle.ExitCode);
         }
 
         [WinFormsTheory]

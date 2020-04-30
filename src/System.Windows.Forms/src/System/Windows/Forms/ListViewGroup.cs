@@ -172,11 +172,12 @@ namespace System.Windows.Forms
             get => _collapsible;
             set
             {
-                if (_collapsible != value)
+                if (_collapsible == value)
                 {
-                    _collapsible = value;
-                    UpdateListView();
+                    return;
                 }
+                _collapsible = value;
+                UpdateListView();
             }
         }
 
@@ -190,11 +191,12 @@ namespace System.Windows.Forms
             get => _collapsed;
             set
             {
-                if (Collapsible && _collapsed != value)
+                if (!Collapsible || _collapsed == value)
                 {
-                    _collapsed = value;
-                    UpdateListView();
+                    return;
                 }
+                _collapsed = value;
+                UpdateListView();
             }
         }
 

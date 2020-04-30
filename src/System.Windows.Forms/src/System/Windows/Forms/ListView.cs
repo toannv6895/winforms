@@ -5407,7 +5407,11 @@ namespace System.Windows.Forms
 
             if (group.Collapsible)
             {
-                lvgroup = SetUpGroupCollapse(group, lvgroup);
+                lvgroup.state |= LVGS.COLLAPSIBLE;
+                if (group.Collapsed)
+                {
+                    lvgroup.state |= LVGS.COLLAPSED;
+                }
             }
 
             switch (group.HeaderAlignment)
@@ -5444,15 +5448,6 @@ namespace System.Windows.Forms
                 lvgroup.pszHeader = pHeader;
                 return User32.SendMessageW(this, (User32.WM)msg, lParam, ref lvgroup);
             }
-        }
-
-        private LVGROUPW SetUpGroupCollapse(ListViewGroup group, LVGROUPW lvgroup) {
-            lvgroup.state |= LVGS.COLLAPSIBLE;
-            if (group.Collapsed)
-            {
-                lvgroup.state |= LVGS.COLLAPSED;
-            }
-            return lvgroup;
         }
 
         // ListViewGroupCollection::Clear needs to remove the items from the Default group
