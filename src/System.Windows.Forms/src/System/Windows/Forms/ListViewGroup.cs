@@ -176,6 +176,10 @@ namespace System.Windows.Forms
                 {
                     return;
                 }
+                if (!value)
+                {
+                    _collapsed = false;
+                }
                 _collapsible = value;
                 UpdateListView();
             }
