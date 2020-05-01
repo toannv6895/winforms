@@ -5950,11 +5950,11 @@ namespace System.Windows.Forms
 
         private int GetIndexOfClickedItem()
         {
-            var lvhi = SetUpHitTestInfo();
+            var lvhi = SetupHitTestInfo();
             return (int)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, IntPtr.Zero, ref lvhi);
         }
 
-        private LVHITTESTINFO SetUpHitTestInfo ()
+        private LVHITTESTINFO SetupHitTestInfo ()
         {
             Point pos = Cursor.Position;
             pos = PointToClient(pos);
@@ -5969,20 +5969,23 @@ namespace System.Windows.Forms
 
         private int UpdateGroupCollapse(Interop.User32.WM clickType)
         {
-            var lvhi = SetUpHitTestInfo();
-            // see the mouse is on a group
-            int index = (int)User32.SendMessageW(this, (User32.WM)LVM.SUBITEMHITTEST, (IntPtr)(-1), ref lvhi);
-            bool groupHeaderDblClked = lvhi.flags == LVHT.EX_GROUP_HEADER && clickType == User32.WM.LBUTTONDBLCLK; //check if group header double clicked
-            bool chevronClked = (lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE && clickType == User32.WM.LBUTTONUP; //check if chevron clicked
-            if (index != -1 && (groupHeaderDblClked || chevronClked))
+            // see if the mouse event occurred on a group
+            var lvhi = SetupHitTestInfo();
+            int index = unchecked((int)(long)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi));
+            //check if group header was double clicked
+            bool groupHeaderDblClked = lvhi.flags == LVHT.EX_GROUP_HEADER && clickType == User32.WM.LBUTTONDBLCLK;
+            //check if chevron was clicked
+            bool chevronClked = (lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE && clickType == User32.WM.LBUTTONUP;
+            if (index == -1 || (!groupHeaderDblClked && !chevronClked))
             {
-                foreach (ListViewGroup targetGroup in groups)
+                return index;
+            }
+            foreach (ListViewGroup targetGroup in groups)
+            {
+                if (targetGroup.ID == index)
                 {
-                    if (targetGroup.ID == index) //looks at ID 'cuz index is group ID
-                    {
-                        targetGroup.Collapsed = !targetGroup.Collapsed;
-                        break;
-                    }
+                    targetGroup.Collapsed = !targetGroup.Collapsed;
+                    break;
                 }
             }
             return index;
