@@ -673,6 +673,24 @@ namespace System.Windows.Forms.Tests
             Assert.False(listView.IsHandleCreated);
         }
 
+        [WinFormsFact]
+        public void ListViewGroup_Collapse_InvalidStateCheck()
+        {
+            var group = new ListViewGroup
+            {
+                Collapsible = true,
+                Collapsed = true
+            };
+
+            group.Collapsible = false;
+            Assert.False(group.Collapsible);
+            Assert.False(group.Collapsed);
+
+            group.Collapsible = true;
+            Assert.True(group.Collapsible);
+            Assert.False(group.Collapsed);
+        }
+
         [WinFormsTheory]
         [MemberData(nameof(Collapse_TestData))]
         public void ListViewGroup_Collapse_SetWithListViewWithHandle_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
