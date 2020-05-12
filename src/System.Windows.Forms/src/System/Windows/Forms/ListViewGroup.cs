@@ -176,10 +176,12 @@ namespace System.Windows.Forms
                 {
                     return;
                 }
+
                 if (!value)
                 {
                     _collapsed = false;
                 }
+
                 _collapsible = value;
                 UpdateListView();
             }
@@ -199,6 +201,7 @@ namespace System.Windows.Forms
                 {
                     return;
                 }
+
                 _collapsed = value;
                 UpdateListView();
             }

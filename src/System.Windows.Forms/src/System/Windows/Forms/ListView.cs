@@ -5971,9 +5971,9 @@ namespace System.Windows.Forms
             var lvhi = SetupHitTestInfo();
             // see the mouse is on a group
             int index = unchecked((int)(long)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi));
-            //check if group header double clicked
+            // check if group header was double clicked
             bool groupHeaderDblClked = lvhi.flags == LVHT.EX_GROUP_HEADER && clickType == User32.WM.LBUTTONDBLCLK;
-            //check if chevron clicked
+            // check if chevron was clicked
             bool chevronClked = (lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE && clickType == User32.WM.LBUTTONUP;
             if (index == -1 || (!groupHeaderDblClked && !chevronClked))
             {

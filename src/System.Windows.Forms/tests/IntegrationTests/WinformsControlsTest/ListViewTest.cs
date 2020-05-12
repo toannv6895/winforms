@@ -147,27 +147,27 @@ namespace WinformsControlsTest
             // check if group will be collapsed, it shouldn't be
             listView1.Groups[0].Collapsible = false;
             listView1.Groups[0].Collapsed = true;
-            var lv = new ListViewGroup
+            var lvgroup1 = new ListViewGroup
             {
-                Header = "LV1",
+                Header = "CollapsibleGroup1",
                 Collapsible = true
             };
 
-            listView1.Groups.Add(lv);
+            listView1.Groups.Add(lvgroup1);
             listView1.Items.Add(new ListViewItem
             {
                 Text = "Item",
                 Group = listView1.Groups[1]
             });
 
-            var lv2 = new ListViewGroup
+            var lvgroup2 = new ListViewGroup
             {
-                Header = "LV2",
+                Header = "CollapsibleGroup2",
                 Collapsible = true,
                 Collapsed = true
             };
 
-            listView1.Groups.Add(lv2);
+            listView1.Groups.Add(lvgroup2);
             listView1.Items.Add(new ListViewItem
             {
                 Text = "Item",

@@ -620,6 +620,7 @@ namespace System.Windows.Forms.Tests
 
         public static IEnumerable<object[]> Collapse_TestData()
         {
+            // bool representation order: Collapsible, Collapsed, expectedCollapsible, expectedCollapsed
             yield return new object[] { true, true, true, true };
             yield return new object[] { false, true, false, false };
             yield return new object[] { true, false, true, false };
@@ -756,7 +757,7 @@ namespace System.Windows.Forms.Tests
                         stateMask = LVGS.COLLAPSIBLE | LVGS.COLLAPSED
                     };
 
-                    Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPINFOBYINDEX, (IntPtr)0, ref lvgroup));
+                    Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPINFOBYINDEX, IntPtr.Zero, ref lvgroup));
                     Assert.True(lvgroup.iGroupId >= 0);
                     Assert.Equal(expectedCollapsible, group.Collapsible);
                     Assert.Equal(expectedCollapsed, group.Collapsed);
