@@ -618,17 +618,11 @@ namespace System.Windows.Forms.Tests
             Assert.Throws<InvalidEnumArgumentException>("value", () => group.HeaderAlignment = value);
         }
 
-        public static IEnumerable<object[]> Collapse_TestData()
-        {
-            // bool representation order: Collapsible, Collapsed, expectedCollapsible, expectedCollapsed
-            yield return new object[] { true, true, true, true };
-            yield return new object[] { false, true, false, false };
-            yield return new object[] { true, false, true, false };
-            yield return new object[] { false, false, false, false };
-        }
-
         [WinFormsTheory]
-        [MemberData(nameof(Collapse_TestData))]
+        [InlineData(true, true, true, true)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(false, false, false, false)]
         public void ListViewGroup_Collapse_SetWithoutListView_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
         {
             var group = new ListViewGroup()
@@ -647,7 +641,10 @@ namespace System.Windows.Forms.Tests
         }
 
         [WinFormsTheory]
-        [MemberData(nameof(Collapse_TestData))]
+        [InlineData(true, true, true, true)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(false, false, false, false)]
         public void ListViewGroup_Collapse_SetWithListView_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
         {
             using var listView = new ListView();
@@ -693,7 +690,10 @@ namespace System.Windows.Forms.Tests
         }
 
         [WinFormsTheory]
-        [MemberData(nameof(Collapse_TestData))]
+        [InlineData(true, true, true, true)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(false, false, false, false)]
         public void ListViewGroup_Collapse_SetWithListViewWithHandle_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
         {
             using var listView = new ListView();
@@ -727,6 +727,15 @@ namespace System.Windows.Forms.Tests
             Assert.Equal(0, invalidatedCallCount);
             Assert.Equal(0, styleChangedCallCount);
             Assert.Equal(0, createdCallCount);
+        }
+
+        public static IEnumerable<object[]> Collapse_TestData()
+        {
+            // bool representation order: Collapsible, Collapsed, expectedCollapsible, expectedCollapsed
+            yield return new object[] { true, true, true, true };
+            yield return new object[] { false, true, false, false };
+            yield return new object[] { true, false, true, false };
+            yield return new object[] { false, false, false, false };
         }
 
         [WinFormsFact(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
