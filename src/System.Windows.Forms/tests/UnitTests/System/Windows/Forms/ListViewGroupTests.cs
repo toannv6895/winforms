@@ -620,7 +620,7 @@ namespace System.Windows.Forms.Tests
 
         [WinFormsTheory]
         [InlineData(true, true, true, true)]
-        [InlineData(false, true, false, false)]
+        [InlineData(false, true, false, true)]
         [InlineData(true, false, true, false)]
         [InlineData(false, false, false, false)]
         public void ListViewGroup_Collapse_SetWithoutListView_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
@@ -630,6 +630,7 @@ namespace System.Windows.Forms.Tests
                 Collapsible = collapsible,
                 Collapsed = collapsed
             };
+
             Assert.Equal(expectedCollapsible, group.Collapsible);
             Assert.Equal(expectedCollapsed, group.Collapsed);
 
@@ -642,7 +643,7 @@ namespace System.Windows.Forms.Tests
 
         [WinFormsTheory]
         [InlineData(true, true, true, true)]
-        [InlineData(false, true, false, false)]
+        [InlineData(false, true, false, true)]
         [InlineData(true, false, true, false)]
         [InlineData(false, false, false, false)]
         public void ListViewGroup_Collapse_SetWithListView_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
@@ -653,6 +654,7 @@ namespace System.Windows.Forms.Tests
                 Collapsible = collapsible,
                 Collapsed = collapsed
             };
+
             listView.Groups.Add(group);
 
             Assert.Equal(expectedCollapsible, group.Collapsible);
@@ -671,27 +673,9 @@ namespace System.Windows.Forms.Tests
             Assert.False(listView.IsHandleCreated);
         }
 
-        [WinFormsFact]
-        public void ListViewGroup_Collapse_InvalidStateCheck()
-        {
-            var group = new ListViewGroup
-            {
-                Collapsible = true,
-                Collapsed = true
-            };
-
-            group.Collapsible = false;
-            Assert.False(group.Collapsible);
-            Assert.False(group.Collapsed);
-
-            group.Collapsible = true;
-            Assert.True(group.Collapsible);
-            Assert.False(group.Collapsed);
-        }
-
         [WinFormsTheory]
         [InlineData(true, true, true, true)]
-        [InlineData(false, true, false, false)]
+        [InlineData(false, true, false, true)]
         [InlineData(true, false, true, false)]
         [InlineData(false, false, false, false)]
         public void ListViewGroup_Collapse_SetWithListViewWithHandle_GetReturnsExpected(bool collapsible, bool collapsed, bool expectedCollapsible, bool expectedCollapsed)
@@ -702,6 +686,7 @@ namespace System.Windows.Forms.Tests
                 Collapsible = collapsible,
                 Collapsed = collapsed
             };
+
             listView.Groups.Add(group);
             Assert.NotEqual(IntPtr.Zero, listView.Handle);
             int invalidatedCallCount = 0;
@@ -731,7 +716,7 @@ namespace System.Windows.Forms.Tests
 
         public static IEnumerable<object[]> Collapse_TestData()
         {
-            // bool representation order: Collapsible, Collapsed, expectedCollapsible, expectedCollapsed
+            // bool representation order: Collapsible, Collapsed, visuallyCollapsible, visuallyCollapsed
             yield return new object[] { true, true, true, true };
             yield return new object[] { false, true, false, false };
             yield return new object[] { true, false, true, false };
@@ -755,8 +740,8 @@ namespace System.Windows.Forms.Tests
                     Assert.NotEqual(IntPtr.Zero, listView.Handle);
                     group.Collapsible = (bool)data[0];
                     group.Collapsed = (bool)data[1];
-                    bool expectedCollapsible = (bool)data[2];
-                    bool expectedCollapsed = (bool)data[3];
+                    bool visuallyCollapsible = (bool)data[2];
+                    bool visuallyCollapsed = (bool)data[3];
 
                     Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPCOUNT, IntPtr.Zero, IntPtr.Zero));
                     var lvgroup = new LVGROUPW
@@ -766,15 +751,19 @@ namespace System.Windows.Forms.Tests
                         stateMask = LVGS.COLLAPSIBLE | LVGS.COLLAPSED
                     };
 
-                    Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPINFOBYINDEX, IntPtr.Zero, ref lvgroup));
+                    Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPINFOBYINDEX, (IntPtr)0, ref lvgroup));
                     Assert.True(lvgroup.iGroupId >= 0);
-                    Assert.Equal(expectedCollapsible, group.Collapsible);
-                    Assert.Equal(expectedCollapsed, group.Collapsed);
-                    if (!expectedCollapsible)
+                    Assert.Equal(visuallyCollapsible, group.Collapsible);
+                    if (!visuallyCollapsible)
                     {
                         Assert.Equal(LVGS.NORMAL, lvgroup.state);
+                        if (group.Collapsed)
+                        {
+                            Assert.NotEqual(visuallyCollapsed, group.Collapsed);
+                            return;
+                        }
                     }
-                    else if (expectedCollapsible && !expectedCollapsed)
+                    else if (visuallyCollapsible && !visuallyCollapsed)
                     {
                         Assert.Equal(LVGS.COLLAPSIBLE, lvgroup.state);
                     }
@@ -782,6 +771,7 @@ namespace System.Windows.Forms.Tests
                     {
                         Assert.Equal(LVGS.COLLAPSIBLE | LVGS.COLLAPSED, lvgroup.state);
                     }
+                    Assert.Equal(visuallyCollapsed, group.Collapsed);
                 }
             });
 

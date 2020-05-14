@@ -177,11 +177,6 @@ namespace System.Windows.Forms
                     return;
                 }
 
-                if (!value)
-                {
-                    _collapsed = false;
-                }
-
                 _collapsible = value;
                 UpdateListView();
             }
@@ -190,6 +185,10 @@ namespace System.Windows.Forms
         /// <summary>
         ///  Controls whether items in group are collapsed.
         /// </summary>
+        /// <remarks>
+        ///  Collapsed state of the group will be respected once group is <see cref='ListViewGroup.Collapsible'/>,
+        ///  otherwise group will remain in an expanded state.
+        /// </remarks>
         [DefaultValue(false)]
         [SRCategory(nameof(SR.CatAppearance))]
         public bool Collapsed
@@ -197,12 +196,17 @@ namespace System.Windows.Forms
             get => _collapsed;
             set
             {
-                if (!Collapsible || _collapsed == value)
+                if (_collapsed == value)
                 {
                     return;
                 }
 
                 _collapsed = value;
+                if (!Collapsible)
+                {
+                    return;
+                }
+
                 UpdateListView();
             }
         }
