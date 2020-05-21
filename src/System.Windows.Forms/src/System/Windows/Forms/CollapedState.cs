@@ -5,9 +5,9 @@
 namespace System.Windows.Forms
 {
     /// <summary>
-    ///  Values to be passed through to <see cref="ListViewGroup.CollapsedState"/> to specify ListViewGroup state.
+    ///  Values to be passed to <see cref="ListViewGroup.CollapsedState"/>.
     /// </summary>
-    public enum GroupState
+    public enum CollapedState
     {
         /// <summary>
         ///  ListViewGroup will appear expanded and will not be collapsible.

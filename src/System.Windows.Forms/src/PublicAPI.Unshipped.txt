@@ -1,6 +1,11 @@
-System.Windows.Forms.GroupState
-System.Windows.Forms.GroupState.Collapsed = 2 -> System.Windows.Forms.GroupState
-System.Windows.Forms.GroupState.Expanded = 1 -> System.Windows.Forms.GroupState
-System.Windows.Forms.GroupState.Normal = 0 -> System.Windows.Forms.GroupState
-System.Windows.Forms.ListViewGroup.CollapsedState.get -> System.Windows.Forms.GroupState
+System.Windows.Forms.CollapedState
+System.Windows.Forms.CollapedState.Collapsed = 2 -> System.Windows.Forms.CollapedState
+System.Windows.Forms.CollapedState.Expanded = 1 -> System.Windows.Forms.CollapedState
+System.Windows.Forms.CollapedState.Normal = 0 -> System.Windows.Forms.CollapedState
+System.Windows.Forms.ListView.CollapsedStateChanged -> System.EventHandler<System.Windows.Forms.ListViewGroupEventArgs>
+System.Windows.Forms.ListViewGroup.CollapsedState.get -> System.Windows.Forms.CollapedState
 System.Windows.Forms.ListViewGroup.CollapsedState.set -> void
+System.Windows.Forms.ListViewGroupEventArgs
+System.Windows.Forms.ListViewGroupEventArgs.GroupIndex.get -> int
+System.Windows.Forms.ListViewGroupEventArgs.ListViewGroupEventArgs(int groupIndex) -> void
+virtual System.Windows.Forms.ListView.OnCollapsedStateChanged(System.Windows.Forms.ListViewGroupEventArgs args) -> void

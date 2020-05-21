@@ -145,11 +145,11 @@ namespace WinformsControlsTest
         private void AddCollapsibleGroupToListView()
         {
             // check if group will visually be collapsed, it shouldn't be
-            listView1.Groups[0].CollapsedState = ListViewGroup.GroupState.Normal;
+            listView1.Groups[0].CollapsedState = CollapedState.Normal;
             var lvgroup1 = new ListViewGroup
             {
                 Header = "CollapsibleGroup1",
-                CollapsedState = ListViewGroup.GroupState.Expanded
+                CollapsedState = CollapedState.Expanded
             };
 
             listView1.Groups.Add(lvgroup1);
@@ -162,7 +162,7 @@ namespace WinformsControlsTest
             var lvgroup2 = new ListViewGroup
             {
                 Header = "CollapsibleGroup2",
-                CollapsedState = ListViewGroup.GroupState.Collapsed
+                CollapsedState = CollapedState.Collapsed
             };
 
             listView1.Groups.Add(lvgroup2);
@@ -171,6 +171,13 @@ namespace WinformsControlsTest
                 Text = "Item",
                 Group = listView1.Groups[2]
             });
+
+            listView1.CollapsedStateChanged += CollapsedStateChangeCallBack;
+        }
+
+        private void CollapsedStateChangeCallBack(object sender, ListViewGroupEventArgs args)
+        {
+            MessageBox.Show("CollapsedState changed at group index " + args.GroupIndex);
         }
 
         private void listView2_Click(object sender, System.EventArgs e)

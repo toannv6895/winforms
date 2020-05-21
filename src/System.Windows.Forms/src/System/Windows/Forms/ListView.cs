@@ -49,6 +49,7 @@ namespace System.Windows.Forms
         private static readonly object EVENT_SELECTEDINDEXCHANGED = new object();
         private static readonly object EVENT_VIRTUALITEMSSELECTIONRANGECHANGED = new object();
         private static readonly object EVENT_RIGHTTOLEFTLAYOUTCHANGED = new object();
+        private static readonly object EVENT_COLLAPSEDSTATECHANGED = new object();
 
         private ItemActivation activation = ItemActivation.Standard;
         private ListViewAlignment alignStyle = ListViewAlignment.Top;
@@ -2105,6 +2106,13 @@ namespace System.Windows.Forms
         {
             add => Events.AddHandler(EVENT_ITEMSELECTIONCHANGED, value);
             remove => Events.RemoveHandler(EVENT_ITEMSELECTIONCHANGED, value);
+        }
+
+        [SRCategory(nameof(SR.CatBehavior))]
+        public event EventHandler<ListViewGroupEventArgs> CollapsedStateChanged
+        {
+            add => Events.AddHandler(EVENT_COLLAPSEDSTATECHANGED, value);
+            remove => Events.RemoveHandler(EVENT_COLLAPSEDSTATECHANGED, value);
         }
 
         [Browsable(false)]
@@ -4234,6 +4242,11 @@ namespace System.Windows.Forms
             ((CacheVirtualItemsEventHandler)Events[EVENT_CACHEVIRTUALITEMS])?.Invoke(this, e);
         }
 
+        protected virtual void OnCollapsedStateChanged(ListViewGroupEventArgs args)
+        {
+            ((EventHandler<ListViewGroupEventArgs>)Events[EVENT_COLLAPSEDSTATECHANGED])?.Invoke(this, args);
+        }
+
         /// <summary>
         ///  Fires the columnClick event.
         /// </summary>
@@ -5405,10 +5418,10 @@ namespace System.Windows.Forms
                 iGroupId = group.ID
             };
 
-            if (group.CollapsedState != GroupState.Normal)
+            if (group.CollapsedState != CollapedState.Normal)
             {
                 lvgroup.state |= LVGS.COLLAPSIBLE;
-                if (group.CollapsedState == GroupState.Collapsed)
+                if (group.CollapsedState == CollapedState.Collapsed)
                 {
                     lvgroup.state |= LVGS.COLLAPSED;
                 }
@@ -5970,33 +5983,34 @@ namespace System.Windows.Forms
         {
             var lvhi = SetupHitTestInfo();
             // see the mouse is on a group
-            int index = unchecked((int)(long)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi));
+            int groupID = unchecked((int)(long)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi));
             // check if group header was double clicked
             bool groupHeaderDblClked = lvhi.flags == LVHT.EX_GROUP_HEADER && clickType == User32.WM.LBUTTONDBLCLK;
             // check if chevron was clicked
             bool chevronClked = (lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE && clickType == User32.WM.LBUTTONUP;
-            if (index == -1 || (!groupHeaderDblClked && !chevronClked))
+            if (groupID == -1 || (!groupHeaderDblClked && !chevronClked))
             {
-                return index;
+                return groupID;
             }
 
             foreach (ListViewGroup targetGroup in groups)
             {
-                if (targetGroup.ID == index)
+                if (targetGroup.ID == groupID)
                 {
-                    if (targetGroup.CollapsedState == GroupState.Normal)
+                    if (targetGroup.CollapsedState == CollapedState.Normal)
                     {
-                        return index;
+                        return groupID;
                     }
 
-                    targetGroup.CollapsedState = targetGroup.CollapsedState == GroupState.Expanded
-                                                ? GroupState.Collapsed
-                                                : GroupState.Expanded;
+                    targetGroup.CollapsedState = targetGroup.CollapsedState == CollapedState.Expanded
+                                                ? CollapedState.Collapsed
+                                                : CollapedState.Expanded;
+                    OnCollapsedStateChanged(new ListViewGroupEventArgs(groups.IndexOf(targetGroup)));
                     break;
                 }
             }
 
-            return index;
+            return groupID;
         }
 
         internal void RecreateHandleInternal()

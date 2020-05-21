@@ -4,6 +4,7 @@
 
 #nullable disable
 
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -25,7 +26,7 @@ namespace System.Windows.Forms
         private HorizontalAlignment _headerAlignment = HorizontalAlignment.Left;
         private string _footer;
         private HorizontalAlignment _footerAlignment = HorizontalAlignment.Left;
-        private GroupState _collapsedState = GroupState.Normal;
+        private CollapedState _collapsedState = CollapedState.Normal;
 
         private ListView.ListViewItemCollection _items;
 
@@ -163,11 +164,11 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Controls which <see cref="GroupState"/> the group is in.
+        ///  Controls which <see cref="CollapedState"/> the group is in.
         /// </summary>
-        [DefaultValue(GroupState.Normal)]
+        [DefaultValue(CollapedState.Normal)]
         [SRCategory(nameof(SR.CatAppearance))]
-        public GroupState CollapsedState
+        public CollapedState CollapsedState
         {
             get => _collapsedState;
             set
