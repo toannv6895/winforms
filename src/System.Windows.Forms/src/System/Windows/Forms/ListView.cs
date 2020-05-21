@@ -5405,10 +5405,10 @@ namespace System.Windows.Forms
                 iGroupId = group.ID
             };
 
-            if (group.Collapsible)
+            if (group.CollapsedState != GroupState.Normal)
             {
                 lvgroup.state |= LVGS.COLLAPSIBLE;
-                if (group.Collapsed)
+                if (group.CollapsedState == GroupState.Collapsed)
                 {
                     lvgroup.state |= LVGS.COLLAPSED;
                 }
@@ -5984,7 +5984,14 @@ namespace System.Windows.Forms
             {
                 if (targetGroup.ID == index)
                 {
-                    targetGroup.Collapsed = !targetGroup.Collapsed;
+                    if (targetGroup.CollapsedState == GroupState.Normal)
+                    {
+                        return index;
+                    }
+
+                    targetGroup.CollapsedState = targetGroup.CollapsedState == GroupState.Expanded
+                                                ? GroupState.Collapsed
+                                                : GroupState.Expanded;
                     break;
                 }
             }

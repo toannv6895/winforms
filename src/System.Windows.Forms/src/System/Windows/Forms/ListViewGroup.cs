@@ -6,6 +6,7 @@
 
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace System.Windows.Forms
@@ -24,8 +25,7 @@ namespace System.Windows.Forms
         private HorizontalAlignment _headerAlignment = HorizontalAlignment.Left;
         private string _footer;
         private HorizontalAlignment _footerAlignment = HorizontalAlignment.Left;
-        private bool _collapsible = false;
-        private bool _collapsed = false;
+        private GroupState _collapsedState = GroupState.Normal;
 
         private ListView.ListViewItemCollection _items;
 
@@ -163,50 +163,21 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Controls whether items in group are collapsible.
+        ///  Controls which <see cref="GroupState"/> the group is in.
         /// </summary>
-        [DefaultValue(false)]
+        [DefaultValue(GroupState.Normal)]
         [SRCategory(nameof(SR.CatAppearance))]
-        public bool Collapsible
+        public GroupState CollapsedState
         {
-            get => _collapsible;
+            get => _collapsedState;
             set
             {
-                if (_collapsible == value)
+                if (_collapsedState == value)
                 {
                     return;
                 }
 
-                _collapsible = value;
-                UpdateListView();
-            }
-        }
-
-        /// <summary>
-        ///  Controls whether items in group are collapsed.
-        /// </summary>
-        /// <remarks>
-        ///  Collapsed state of the group will be respected once group is <see cref='ListViewGroup.Collapsible'/>,
-        ///  otherwise group will remain in an expanded state.
-        /// </remarks>
-        [DefaultValue(false)]
-        [SRCategory(nameof(SR.CatAppearance))]
-        public bool Collapsed
-        {
-            get => _collapsed;
-            set
-            {
-                if (_collapsed == value)
-                {
-                    return;
-                }
-
-                _collapsed = value;
-                if (!Collapsible)
-                {
-                    return;
-                }
-
+                _collapsedState = value;
                 UpdateListView();
             }
         }
