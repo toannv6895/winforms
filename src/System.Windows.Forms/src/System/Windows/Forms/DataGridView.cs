@@ -387,8 +387,6 @@ namespace System.Windows.Forms
         // the tool tip string we get from cells
         private string toolTipCaption = string.Empty;
 
-        private const int maxTTDISPINFOBufferLength = 80;
-
         // Last Mouse Click Info
         private MouseClickInfo lastMouseClickInfo;
 
@@ -1793,16 +1791,6 @@ namespace System.Windows.Forms
             add => Events.AddHandler(EVENT_DATAGRIDVIEWCOLUMNHEADERSHEIGHTSIZEMODECHANGED, value);
             remove => Events.RemoveHandler(EVENT_DATAGRIDVIEWCOLUMNHEADERSHEIGHTSIZEMODECHANGED, value);
         }
-
-        /// <summary>
-        ///  Indicates whether the ComboBox editing control was just detached. (focused out to another cell)
-        /// </summary>
-        internal bool ComboBoxControlWasDetached { get; set; }
-
-        /// <summary>
-        ///  Indicates whether the TextBox editing control was just detached. (focused out to another cell)
-        /// </summary>
-        internal bool TextBoxControlWasDetached { get; set; }
 
         /// <summary>
         ///  Gets
@@ -5468,77 +5456,6 @@ namespace System.Windows.Forms
                                                                          (defaultSelectionMode).ToString()));
                     }
                 }
-            }
-        }
-
-        /* INTERNAL ENUMERATIONS */
-
-        internal enum DataGridViewHitTestTypeInternal
-        {
-            None,
-            Cell,
-            ColumnHeader,
-            RowHeader,
-            ColumnResizeLeft,
-            ColumnResizeRight,
-            RowResizeTop,
-            RowResizeBottom,
-            FirstColumnHeaderLeft,
-            TopLeftHeader,
-            TopLeftHeaderResizeLeft,
-            TopLeftHeaderResizeRight,
-            TopLeftHeaderResizeTop,
-            TopLeftHeaderResizeBottom,
-            ColumnHeadersResizeBottom,
-            ColumnHeadersResizeTop,
-            RowHeadersResizeRight,
-            RowHeadersResizeLeft,
-            ColumnHeaderLeft,
-            ColumnHeaderRight
-        }
-
-        internal enum DataGridViewValidateCellInternal
-        {
-            Never,
-            Always,
-            WhenChanged
-        }
-
-        private enum DataGridViewMouseEvent
-        {
-            Click,
-            DoubleClick,
-            MouseClick,
-            MouseDoubleClick,
-            MouseDown,
-            MouseUp,
-            MouseMove
-        }
-
-        private struct MouseClickInfo
-        {
-            public MouseButtons button;
-            public long timeStamp;
-            public int x;
-            public int y;
-            public int col;
-            public int row;
-        }
-
-        internal class DataGridViewEditingPanel : Panel
-        {
-            private readonly DataGridView owningDataGridView;
-
-            public DataGridViewEditingPanel(DataGridView owningDataGridView)
-            {
-                this.owningDataGridView = owningDataGridView;
-            }
-
-            internal override bool SupportsUiaProviders => true;
-
-            protected override AccessibleObject CreateAccessibilityInstance()
-            {
-                return new DataGridViewEditingPanelAccessibleObject(owningDataGridView, this);
             }
         }
     }

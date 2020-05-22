@@ -108,7 +108,6 @@ namespace System.Windows.Forms
         private static readonly int s_accessibilityProperty = PropertyStore.CreateKey();
         private static readonly int s_accessibleNameProperty = PropertyStore.CreateKey();
         private static readonly int s_accessibleRoleProperty = PropertyStore.CreateKey();
-        private static readonly int s_accessibleHelpProviderProperty = PropertyStore.CreateKey();
 
         private static readonly int s_accessibleDefaultActionDescriptionProperty = PropertyStore.CreateKey();
         private static readonly int s_accessibleDescriptionProperty = PropertyStore.CreateKey();
@@ -2339,24 +2338,15 @@ namespace System.Windows.Forms
             ParentInternal?.Invalidate(new Rectangle(rectangleLocation, r.Size), true);
         }
 
-        internal void InvalidateItemLayout(string affectedProperty, bool invalidatePainting)
+        internal void InvalidateItemLayout(string affectedProperty)
         {
             _toolStripItemInternalLayout = null;
 
             if (Owner != null)
             {
                 LayoutTransaction.DoLayout(Owner, this, affectedProperty);
-            }
-
-            if (invalidatePainting && Owner != null)
-            {
                 Owner.Invalidate();
             }
-        }
-
-        internal void InvalidateItemLayout(string affectedProperty)
-        {
-            InvalidateItemLayout(affectedProperty, invalidatePainting: true);
         }
 
         internal void InvalidateImageListImage()

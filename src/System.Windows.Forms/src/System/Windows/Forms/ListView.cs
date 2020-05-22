@@ -5789,7 +5789,7 @@ namespace System.Windows.Forms
                             {
                                 return false;
                             }
-                            throw coEx;
+                            throw;
                         }
                     }
                 }

@@ -190,27 +190,6 @@ namespace System.Windows.Forms
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public class NOTIFYICONDATA
-        {
-            public int cbSize = Marshal.SizeOf<NOTIFYICONDATA>();
-            public IntPtr hWnd;
-            public int uID;
-            public Shell32.NIF uFlags;
-            public int uCallbackMessage;
-            public IntPtr hIcon;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-            public string szTip;
-            public int dwState = 0;
-            public int dwStateMask = 0;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-            public string szInfo;
-            public int uTimeoutOrVersion;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
-            public string szInfoTitle;
-            public Shell32.NIIF dwInfoFlags;
-        }
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public class OPENFILENAME_I
         {
             public int lStructSize = Marshal.SizeOf<OPENFILENAME_I>(); //ndirect.DllLib.sizeOf(this);
@@ -319,17 +298,6 @@ namespace System.Windows.Forms
             public byte[] contents = new byte[56];
         }
 
-        // GetRegionData structures
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RGNDATAHEADER
-        {
-            public int cbSizeOfStruct;
-            public int iType;
-            public int nCount;
-            public int nRgnSize;
-            // public RECT rcBound; // Note that we don't define this field as part of the marshaling
-        }
-
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public class ENPROTECTED
         {
@@ -362,36 +330,6 @@ namespace System.Windows.Forms
             private ActiveX()
             {
             }
-        }
-
-        public delegate bool MonitorEnumProc(IntPtr monitor, IntPtr hdc, IntPtr lprcMonitor, IntPtr lParam);
-
-        [ComImport]
-        [Guid("A7ABA9C1-8983-11cf-8F20-00805F2CD064")]
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        public interface IProvideMultipleClassInfo
-        {
-            // since the inheritance doesn't seem to work...
-            // these are from IProvideClassInfo & IProvideClassInfo2
-            [PreserveSig]
-            void GetClassInfo_Stub();
-            // HRESULT GetClassInfo(out ITypeInfo ppTI);
-
-            [PreserveSig]
-            int GetGUID(int dwGuidKind, [In, Out] ref Guid pGuid);
-
-            [PreserveSig]
-            HRESULT GetMultiTypeInfoCount([In, Out] ref int pcti);
-
-            // we use arrays for most of these since we never use them anyway.
-            [PreserveSig]
-            HRESULT GetInfoOfIndex(int iti, int dwFlags,
-                                [In, Out]
-                                ref Oleaut32.ITypeInfo pTypeInfo,
-                                int pTIFlags,
-                                int pcdispidReserved,
-                                IntPtr piidPrimary,
-                                IntPtr piidSource);
         }
 
         /// <summary>

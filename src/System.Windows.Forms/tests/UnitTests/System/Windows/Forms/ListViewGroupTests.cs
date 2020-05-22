@@ -180,7 +180,7 @@ namespace System.Windows.Forms.Tests
             yield return new object[] { "te\0t", "te" };
         }
 
-        [WinFormsFact]
+        [WinFormsFact(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
         public unsafe void ListViewGroup_Footer_GetGroupInfo_Success()
         {
             // Run this from another thread as we call Application.EnableVisualStyles.
@@ -318,7 +318,7 @@ namespace System.Windows.Forms.Tests
             yield return new object[] { "footer", HorizontalAlignment.Right, 0x00000020 | (int)LVGA.HEADER_LEFT };
         }
 
-        [WinFormsTheory]
+        [WinFormsTheory(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
         [MemberData(nameof(FooterAlignment_GetGroupInfo_TestData))]
         public unsafe void ListView_FooterAlignment_GetGroupInfo_Success(string footerParam, HorizontalAlignment valueParam, int expectedAlignParam)
         {
@@ -441,7 +441,7 @@ namespace System.Windows.Forms.Tests
             yield return new object[] { "te\0t", "te" };
         }
 
-        [WinFormsFact]
+        [WinFormsFact(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
         public unsafe void ListViewGroup_Header_GetGroupInfo_Success()
         {
             // Run this from another thread as we call Application.EnableVisualStyles.
@@ -569,7 +569,7 @@ namespace System.Windows.Forms.Tests
             yield return new object[] { "header", HorizontalAlignment.Right, 0x00000004 | (int)LVGA.FOOTER_LEFT };
         }
 
-        [WinFormsTheory]
+        [WinFormsTheory(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
         [MemberData(nameof(HeaderAlignment_GetGroupInfo_TestData))]
         public unsafe void ListView_HeaderAlignment_GetGroupInfo_Success(string headerParam, HorizontalAlignment valueParam, int expectedAlignParam)
         {
@@ -867,12 +867,12 @@ namespace System.Windows.Forms.Tests
         }
 
         [WinFormsFact]
-        public void ListViewGroup_ISerializableGetObjectData_NullInfo_ThrowsNullReferenceException()
+        public void ListViewGroup_ISerializableGetObjectData_NullInfo_ThrowsArgumentNullException()
         {
             var group = new ListViewGroup();
             ISerializable iSerializable = group;
             var context = new StreamingContext();
-            Assert.Throws<NullReferenceException>(() => iSerializable.GetObjectData(null, context));
+            Assert.Throws<ArgumentNullException>("info", () => iSerializable.GetObjectData(null, context));
         }
     }
 }

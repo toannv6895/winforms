@@ -55,7 +55,7 @@ namespace System.Windows.Forms
         Ole32.IViewObject2,
         Ole32.IPersist,
         Ole32.IPersistStreamInit,
-        Ole32.IPersistPropertyBag,
+        Oleaut32.IPersistPropertyBag,
         Ole32.IPersistStorage,
         Ole32.IQuickActivate,
         ISupportOleDropSource,
@@ -165,12 +165,10 @@ namespace System.Windows.Forms
         private static readonly object s_layoutEvent = new object();
         private static readonly object s_gotFocusEvent = new object();
         private static readonly object s_lostFocusEvent = new object();
-        private static readonly object s_enabledChangedEvent = new object();
         private static readonly object s_enterEvent = new object();
         private static readonly object s_leaveEvent = new object();
         private static readonly object s_handleCreatedEvent = new object();
         private static readonly object s_handleDestroyedEvent = new object();
-        private static readonly object s_visibleChangedEvent = new object();
         private static readonly object s_controlAddedEvent = new object();
         private static readonly object s_controlRemovedEvent = new object();
         private static readonly object s_changeUICuesEvent = new object();
@@ -270,12 +268,10 @@ namespace System.Windows.Forms
         private static readonly int s_accessibleNameProperty = PropertyStore.CreateKey();
         private static readonly int s_accessibleRoleProperty = PropertyStore.CreateKey();
 
-        private static readonly int s_paintingExceptionProperty = PropertyStore.CreateKey();
         private static readonly int s_activeXImplProperty = PropertyStore.CreateKey();
         private static readonly int s_controlVersionInfoProperty = PropertyStore.CreateKey();
         private static readonly int s_backgroundImageLayoutProperty = PropertyStore.CreateKey();
 
-        private static readonly int s_accessibleHelpProviderProperty = PropertyStore.CreateKey();
         private static readonly int s_contextMenuStripProperty = PropertyStore.CreateKey();
         private static readonly int s_autoScrollOffsetProperty = PropertyStore.CreateKey();
         private static readonly int s_useCompatibleTextRenderingProperty = PropertyStore.CreateKey();
@@ -2710,11 +2706,6 @@ namespace System.Windows.Forms
         // this property is overidden in SplitContainer to return true so that we skip the SplitContainer
         // and the correct Parent ContainerControl is returned by GetContainerControl().
         internal virtual bool IsContainerControl => false;
-
-        /// <summary>
-        ///  Used to tell if this control is being hosted in IE.
-        /// </summary>
-        internal bool IsIEParent => IsActiveX ? ActiveXInstance.IsIE : false;
 
         /// <summary>
         ///  Used to tell if the control is mirrored
@@ -13814,13 +13805,13 @@ namespace System.Windows.Forms
             return HRESULT.S_OK;
         }
 
-        HRESULT Ole32.IPersistPropertyBag.InitNew()
+        HRESULT Oleaut32.IPersistPropertyBag.InitNew()
         {
             Debug.WriteLineIf(CompModSwitches.ActiveX.TraceInfo, "AxSource:IPersistPropertyBag.InitNew");
             return HRESULT.S_OK;
         }
 
-        unsafe HRESULT Ole32.IPersistPropertyBag.GetClassID(Guid* pClassID)
+        unsafe HRESULT Oleaut32.IPersistPropertyBag.GetClassID(Guid* pClassID)
         {
             if (pClassID == null)
             {
@@ -13832,7 +13823,7 @@ namespace System.Windows.Forms
             return HRESULT.S_OK;
         }
 
-        void Ole32.IPersistPropertyBag.Load(Ole32.IPropertyBag pPropBag, Ole32.IErrorLog pErrorLog)
+        void Oleaut32.IPersistPropertyBag.Load(Oleaut32.IPropertyBag pPropBag, Oleaut32.IErrorLog pErrorLog)
         {
             Debug.WriteLineIf(CompModSwitches.ActiveX.TraceInfo, "AxSource:Load (IPersistPropertyBag)");
             Debug.Indent();
@@ -13840,7 +13831,7 @@ namespace System.Windows.Forms
             Debug.Unindent();
         }
 
-        void Ole32.IPersistPropertyBag.Save(Ole32.IPropertyBag pPropBag, BOOL fClearDirty, BOOL fSaveAllProperties)
+        void Oleaut32.IPersistPropertyBag.Save(Oleaut32.IPropertyBag pPropBag, BOOL fClearDirty, BOOL fSaveAllProperties)
         {
             Debug.WriteLineIf(CompModSwitches.ActiveX.TraceInfo, "AxSource:Save (IPersistPropertyBag)");
             Debug.Indent();

@@ -139,7 +139,7 @@ namespace System.Windows.Forms.Tests
             Assert.IsType<ToolStripProfessionalRenderer>(control.Renderer);
             Assert.Equal(ToolStripRenderMode.ManagerRenderMode, control.RenderMode);
             Assert.True(control.ResizeRedraw);
-            Assert.Equal(2, control.Right);
+            Assert.Equal(SystemInformation.WorkingArea.X + 2, control.Right);
             Assert.Equal(RightToLeft.No, control.RightToLeft);
             Assert.True(control.ShowFocusCues);
             Assert.True(control.ShowItemToolTips);
@@ -272,7 +272,7 @@ namespace System.Windows.Forms.Tests
             Assert.False(control.IsHandleCreated);
         }
 
-        [Fact]
+        [Fact] // x-thread
         public void ToolStripDropDown_AllowItemReorder_SetWithHandleNonSTAThread_ThrowsInvalidOperationException()
         {
             using var control = new ToolStripDropDown();
@@ -1931,6 +1931,15 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(Location_Set_TestData))]
         public void ToolStripDropDown_Location_Set_GetReturnsExpected(Point value, Point expected, int expectedLocationChangedCallCount)
         {
+            if (value != Point.Empty)
+            {
+                expected.X = Math.Max(expected.X, SystemInformation.WorkingArea.X);
+                expected.Y = Math.Max(expected.Y, SystemInformation.WorkingArea.Y);
+
+                if (expectedLocationChangedCallCount == 0 && SystemInformation.WorkingArea.Location != Point.Empty)
+                    expectedLocationChangedCallCount = 1;
+            }
+
             using var control = new ToolStripDropDown();
             int moveCallCount = 0;
             int locationChangedCallCount = 0;
@@ -2720,12 +2729,12 @@ namespace System.Windows.Forms.Tests
 
             // Set different.
             control.Text = "text";
-            Assert.Same("text", control.Text);
+            Assert.Equal("text", control.Text);
             Assert.Equal(1, callCount);
 
             // Set same.
             control.Text = "text";
-            Assert.Same("text", control.Text);
+            Assert.Equal("text", control.Text);
             Assert.Equal(1, callCount);
 
             // Set different.
@@ -2736,7 +2745,7 @@ namespace System.Windows.Forms.Tests
             // Remove handler.
             control.TextChanged -= handler;
             control.Text = "text";
-            Assert.Same("text", control.Text);
+            Assert.Equal("text", control.Text);
             Assert.Equal(2, callCount);
         }
 
@@ -3690,10 +3699,10 @@ namespace System.Windows.Forms.Tests
             control.OnChangeUICues(eventArgs);
             Assert.Equal(1, callCount);
 
-           // Remove handler.
-           control.ChangeUICues -= handler;
-           control.OnChangeUICues(eventArgs);
-           Assert.Equal(1, callCount);
+            // Remove handler.
+            control.ChangeUICues -= handler;
+            control.OnChangeUICues(eventArgs);
+            Assert.Equal(1, callCount);
         }
 
         public static IEnumerable<object[]> OnClosed_TestData()
@@ -4903,7 +4912,7 @@ namespace System.Windows.Forms.Tests
             Assert.Equal(expected, actual);
         }
 
-        [WinFormsFact]
+        [WinFormsFact(Skip = "Suspect causing deadlocks, see: https://github.com/dotnet/winforms/issues/3095")]
         public void ToolStripDropDown_KeyboardAccelerators_Test()
         {
             TestForm testForm = new TestForm();

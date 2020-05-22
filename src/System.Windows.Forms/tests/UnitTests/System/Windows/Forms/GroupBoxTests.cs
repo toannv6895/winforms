@@ -428,7 +428,7 @@ namespace System.Windows.Forms.Tests
             {
                 Assert.Same(parent, sender);
                 Assert.Same(control, e.AffectedControl);
-                Assert.Same("AutoSize", e.AffectedProperty);
+                Assert.Equal("AutoSize", e.AffectedProperty);
                 parentLayoutCallCount++;
             };
             parent.Layout += parentHandler;
@@ -500,7 +500,7 @@ namespace System.Windows.Forms.Tests
             {
                 Assert.Same(parent, sender);
                 Assert.Same(control, e.AffectedControl);
-                Assert.Same("AutoSize", e.AffectedProperty);
+                Assert.Equal("AutoSize", e.AffectedProperty);
                 parentLayoutCallCount++;
             };
             parent.Layout += parentHandler;
@@ -716,7 +716,7 @@ namespace System.Windows.Forms.Tests
             Assert.Equal(expectedCreatedCallCount, createdCallCount);
         }
 
-        [WinFormsTheory]
+        [WinFormsTheory(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
         [InlineData(FlatStyle.Flat, true, true, true, 1, 0)]
         [InlineData(FlatStyle.Popup, true, true, true, 1, 0)]
         [InlineData(FlatStyle.Standard, false, true, false, 0, 0)]
@@ -832,7 +832,7 @@ namespace System.Windows.Forms.Tests
             Assert.Equal(expectedCreatedCallCount, createdCallCount);
         }
 
-        [WinFormsTheory]
+        [WinFormsTheory(Skip = "Crash with AbandonedMutexException. See: https://github.com/dotnet/arcade/issues/5325")]
         [InlineData(FlatStyle.Flat, FlatStyle.Flat, false, true, true, 0, 0)]
         [InlineData(FlatStyle.Flat, FlatStyle.Popup, true, true, true, 1, 0)]
         [InlineData(FlatStyle.Flat, FlatStyle.Standard, true, true, true, 1, 0)]
@@ -1150,12 +1150,12 @@ namespace System.Windows.Forms.Tests
 
             // Set different.
             control.Text = "text";
-            Assert.Same("text", control.Text);
+            Assert.Equal("text", control.Text);
             Assert.Equal(1, callCount);
 
             // Set same.
             control.Text = "text";
-            Assert.Same("text", control.Text);
+            Assert.Equal("text", control.Text);
             Assert.Equal(1, callCount);
 
             // Set different.
@@ -1166,7 +1166,7 @@ namespace System.Windows.Forms.Tests
             // Remove handler.
             control.TextChanged -= handler;
             control.Text = "text";
-            Assert.Same("text", control.Text);
+            Assert.Equal("text", control.Text);
             Assert.Equal(2, callCount);
         }
 
