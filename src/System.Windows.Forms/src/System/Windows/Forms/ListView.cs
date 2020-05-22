@@ -49,7 +49,7 @@ namespace System.Windows.Forms
         private static readonly object EVENT_SELECTEDINDEXCHANGED = new object();
         private static readonly object EVENT_VIRTUALITEMSSELECTIONRANGECHANGED = new object();
         private static readonly object EVENT_RIGHTTOLEFTLAYOUTCHANGED = new object();
-        private static readonly object EVENT_COLLAPSEDSTATECHANGED = new object();
+        private static readonly object EVENT_GROUPCOLLAPSEDSTATECHANGED = new object();
 
         private ItemActivation activation = ItemActivation.Standard;
         private ListViewAlignment alignStyle = ListViewAlignment.Top;
@@ -2109,10 +2109,11 @@ namespace System.Windows.Forms
         }
 
         [SRCategory(nameof(SR.CatBehavior))]
-        public event EventHandler<ListViewGroupEventArgs> CollapsedStateChanged
+        [SRDescription(nameof(SR.ListViewGroupCollapsedStateChangedDescr))]
+        public event EventHandler<ListViewGroupEventArgs> GroupCollapsedStateChanged
         {
-            add => Events.AddHandler(EVENT_COLLAPSEDSTATECHANGED, value);
-            remove => Events.RemoveHandler(EVENT_COLLAPSEDSTATECHANGED, value);
+            add => Events.AddHandler(EVENT_GROUPCOLLAPSEDSTATECHANGED, value);
+            remove => Events.RemoveHandler(EVENT_GROUPCOLLAPSEDSTATECHANGED, value);
         }
 
         [Browsable(false)]
@@ -4242,9 +4243,12 @@ namespace System.Windows.Forms
             ((CacheVirtualItemsEventHandler)Events[EVENT_CACHEVIRTUALITEMS])?.Invoke(this, e);
         }
 
-        protected virtual void OnCollapsedStateChanged(ListViewGroupEventArgs args)
+        /// <summary>
+        ///  Raises the <see cref="GroupCollapsedStateChanged"/> event.
+        /// </summary>
+        protected virtual void OnGroupCollapsedStateChanged(ListViewGroupEventArgs args)
         {
-            ((EventHandler<ListViewGroupEventArgs>)Events[EVENT_COLLAPSEDSTATECHANGED])?.Invoke(this, args);
+            ((EventHandler<ListViewGroupEventArgs>)Events[EVENT_GROUPCOLLAPSEDSTATECHANGED])?.Invoke(this, args);
         }
 
         /// <summary>
@@ -6005,7 +6009,7 @@ namespace System.Windows.Forms
                     targetGroup.CollapsedState = targetGroup.CollapsedState == CollapedState.Expanded
                                                 ? CollapedState.Collapsed
                                                 : CollapedState.Expanded;
-                    OnCollapsedStateChanged(new ListViewGroupEventArgs(groups.IndexOf(targetGroup)));
+                    OnGroupCollapsedStateChanged(new ListViewGroupEventArgs(groups.IndexOf(targetGroup)));
                     break;
                 }
             }

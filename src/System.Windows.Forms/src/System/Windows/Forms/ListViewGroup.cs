@@ -164,7 +164,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Controls which <see cref="CollapedState"/> the group is in.
+        ///  Controls which <see cref="CollapedState"/> the group will appear as.
         /// </summary>
         [DefaultValue(CollapedState.Normal)]
         [SRCategory(nameof(SR.CatAppearance))]

@@ -172,12 +172,12 @@ namespace WinformsControlsTest
                 Group = listView1.Groups[2]
             });
 
-            listView1.CollapsedStateChanged += CollapsedStateChangeCallBack;
+            listView1.GroupCollapsedStateChanged += GroupCollapsedStateChangeCallBack;
         }
 
-        private void CollapsedStateChangeCallBack(object sender, ListViewGroupEventArgs args)
+        private void GroupCollapsedStateChangeCallBack(object sender, ListViewGroupEventArgs args)
         {
-            MessageBox.Show("CollapsedState changed at group index " + args.GroupIndex);
+            MessageBox.Show("CollapsedState changed at group with index " + args.GroupIndex);
         }
 
         private void listView2_Click(object sender, System.EventArgs e)

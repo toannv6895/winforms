@@ -5,7 +5,7 @@
 namespace System.Windows.Forms
 {
     /// <summary>
-    ///  Values to be passed to <see cref="ListViewGroup.CollapsedState"/>.
+    ///  Specifies the appearance of a <see cref="ListViewGroup"/>.
     /// </summary>
     public enum CollapedState
     {
