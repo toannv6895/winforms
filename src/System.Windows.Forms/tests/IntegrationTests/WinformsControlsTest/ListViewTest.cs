@@ -144,8 +144,6 @@ namespace WinformsControlsTest
 
         private void AddCollapsibleGroupToListView()
         {
-            // check if group will visually be collapsed, it shouldn't be
-            listView1.Groups[0].CollapsedState = CollapedState.Normal;
             var lvgroup1 = new ListViewGroup
             {
                 Header = "CollapsibleGroup1",

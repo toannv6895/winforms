@@ -5,7 +5,6 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace System.Windows.Forms
