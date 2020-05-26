@@ -9,11 +9,17 @@ namespace System.Windows.Forms
     /// </summary>
     public class ListViewGroupEventArgs : EventArgs
     {
+        /// <summary>
+        ///  Constructor for ListViewGroupEventArgs.
+        /// </summary>
         public ListViewGroupEventArgs(int groupIndex)
         {
             GroupIndex = groupIndex;
         }
 
+        /// <summary>
+        ///  Returns the index of the ListViewGroup associated with the event.
+        /// </summary>
         public int GroupIndex { get; }
     }
 }

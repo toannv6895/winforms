@@ -32,7 +32,7 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Null(group.Name);
             Assert.Null(group.Tag);
-            Assert.Equal(CollapedState.Normal, group.CollapsedState);
+            Assert.Equal(ListViewGroupCollapsedState.Normal, group.CollapsedState);
         }
 
         [WinFormsTheory]
@@ -49,7 +49,7 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Null(group.Name);
             Assert.Null(group.Tag);
-            Assert.Equal(CollapedState.Normal, group.CollapsedState);
+            Assert.Equal(ListViewGroupCollapsedState.Normal, group.CollapsedState);
         }
 
         public static IEnumerable<object[]> Ctor_String_HorizontalAlignment_TestData()
@@ -75,7 +75,7 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Null(group.Name);
             Assert.Null(group.Tag);
-            Assert.Equal(CollapedState.Normal, group.CollapsedState);
+            Assert.Equal(ListViewGroupCollapsedState.Normal, group.CollapsedState);
         }
 
         public static IEnumerable<object[]> Ctor_String_String_TestData()
@@ -99,7 +99,7 @@ namespace System.Windows.Forms.Tests
             Assert.Null(group.ListView);
             Assert.Equal(key, group.Name);
             Assert.Null(group.Tag);
-            Assert.Equal(CollapedState.Normal, group.CollapsedState);
+            Assert.Equal(ListViewGroupCollapsedState.Normal, group.CollapsedState);
         }
 
         [WinFormsTheory]
@@ -616,14 +616,14 @@ namespace System.Windows.Forms.Tests
 
         public static IEnumerable<object[]> CollapsedState_TestData()
         {
-            yield return new object[] { CollapedState.Normal, CollapedState.Normal };
-            yield return new object[] { CollapedState.Expanded, CollapedState.Expanded };
-            yield return new object[] { CollapedState.Collapsed, CollapedState.Collapsed };
+            yield return new object[] { ListViewGroupCollapsedState.Normal, ListViewGroupCollapsedState.Normal };
+            yield return new object[] { ListViewGroupCollapsedState.Expanded, ListViewGroupCollapsedState.Expanded };
+            yield return new object[] { ListViewGroupCollapsedState.Collapsed, ListViewGroupCollapsedState.Collapsed };
         }
 
         [WinFormsTheory]
         [MemberData(nameof(CollapsedState_TestData))]
-        public void ListViewGroup_Collapse_SetWithoutListView_GetReturnsExpected(CollapedState value, CollapedState expected)
+        public void ListViewGroup_Collapse_SetWithoutListView_GetReturnsExpected(ListViewGroupCollapsedState value, ListViewGroupCollapsedState expected)
         {
             var group = new ListViewGroup()
             {
@@ -639,7 +639,7 @@ namespace System.Windows.Forms.Tests
 
         [WinFormsTheory]
         [MemberData(nameof(CollapsedState_TestData))]
-        public void ListViewGroup_Collapse_SetWithListView_GetReturnsExpected(CollapedState value, CollapedState expected)
+        public void ListViewGroup_Collapse_SetWithListView_GetReturnsExpected(ListViewGroupCollapsedState value, ListViewGroupCollapsedState expected)
         {
             using var listView = new ListView();
             var group = new ListViewGroup
@@ -662,7 +662,7 @@ namespace System.Windows.Forms.Tests
 
         [WinFormsTheory]
         [MemberData(nameof(CollapsedState_TestData))]
-        public void ListViewGroup_Collapse_SetWithListViewWithHandle_GetReturnsExpected(CollapedState value, CollapedState expected)
+        public void ListViewGroup_Collapse_SetWithListViewWithHandle_GetReturnsExpected(ListViewGroupCollapsedState value, ListViewGroupCollapsedState expected)
         {
             using var listView = new ListView();
             var group = new ListViewGroup
@@ -709,8 +709,8 @@ namespace System.Windows.Forms.Tests
                     listView.Groups.Add(group);
 
                     Assert.NotEqual(IntPtr.Zero, listView.Handle);
-                    group.CollapsedState = (CollapedState)data[0];
-                    CollapedState expectedCollapsedState = (CollapedState)data[1];
+                    group.CollapsedState = (ListViewGroupCollapsedState)data[0];
+                    ListViewGroupCollapsedState expectedCollapsedState = (ListViewGroupCollapsedState)data[1];
 
                     Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPCOUNT, IntPtr.Zero, IntPtr.Zero));
                     var lvgroup = new LVGROUPW
@@ -723,11 +723,11 @@ namespace System.Windows.Forms.Tests
                     Assert.Equal((IntPtr)1, User32.SendMessageW(listView.Handle, (User32.WM)LVM.GETGROUPINFOBYINDEX, (IntPtr)0, ref lvgroup));
                     Assert.True(lvgroup.iGroupId >= 0);
                     Assert.Equal(expectedCollapsedState, group.CollapsedState);
-                    if (expectedCollapsedState == CollapedState.Normal)
+                    if (expectedCollapsedState == ListViewGroupCollapsedState.Normal)
                     {
                         Assert.Equal(LVGS.NORMAL, lvgroup.state);
                     }
-                    else if (expectedCollapsedState == CollapedState.Expanded)
+                    else if (expectedCollapsedState == ListViewGroupCollapsedState.Expanded)
                     {
                         Assert.Equal(LVGS.COLLAPSIBLE, lvgroup.state);
                     }

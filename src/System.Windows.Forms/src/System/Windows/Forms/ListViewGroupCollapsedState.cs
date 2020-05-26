@@ -7,7 +7,7 @@ namespace System.Windows.Forms
     /// <summary>
     ///  Specifies the appearance of a <see cref="ListViewGroup"/>.
     /// </summary>
-    public enum CollapedState
+    public enum ListViewGroupCollapsedState
     {
         /// <summary>
         ///  ListViewGroup will appear expanded and will not be collapsible.

@@ -4246,9 +4246,9 @@ namespace System.Windows.Forms
         /// <summary>
         ///  Raises the <see cref="GroupCollapsedStateChanged"/> event.
         /// </summary>
-        protected virtual void OnGroupCollapsedStateChanged(ListViewGroupEventArgs args)
+        protected virtual void OnGroupCollapsedStateChanged(ListViewGroupEventArgs e)
         {
-            ((EventHandler<ListViewGroupEventArgs>)Events[EVENT_GROUPCOLLAPSEDSTATECHANGED])?.Invoke(this, args);
+            ((EventHandler<ListViewGroupEventArgs>)Events[EVENT_GROUPCOLLAPSEDSTATECHANGED])?.Invoke(this, e);
         }
 
         /// <summary>
@@ -5422,10 +5422,10 @@ namespace System.Windows.Forms
                 iGroupId = group.ID
             };
 
-            if (group.CollapsedState != CollapedState.Normal)
+            if (group.CollapsedState != ListViewGroupCollapsedState.Normal)
             {
                 lvgroup.state |= LVGS.COLLAPSIBLE;
-                if (group.CollapsedState == CollapedState.Collapsed)
+                if (group.CollapsedState == ListViewGroupCollapsedState.Collapsed)
                 {
                     lvgroup.state |= LVGS.COLLAPSED;
                 }
@@ -5988,28 +5988,34 @@ namespace System.Windows.Forms
             var lvhi = SetupHitTestInfo();
             // see the mouse is on a group
             int groupID = unchecked((int)(long)User32.SendMessageW(this, (User32.WM)LVM.HITTEST, (IntPtr)(-1), ref lvhi));
-            // check if group header was double clicked
-            bool groupHeaderDblClked = lvhi.flags == LVHT.EX_GROUP_HEADER && clickType == User32.WM.LBUTTONDBLCLK;
-            // check if chevron was clicked
-            bool chevronClked = (lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE && clickType == User32.WM.LBUTTONUP;
-            if (groupID == -1 || (!groupHeaderDblClked && !chevronClked))
+            if (groupID == -1)
             {
                 return groupID;
             }
 
-            foreach (ListViewGroup targetGroup in groups)
+            // check if group header was double clicked
+            bool groupHeaderDblClked = lvhi.flags == LVHT.EX_GROUP_HEADER && clickType == User32.WM.LBUTTONDBLCLK;
+            // check if chevron was clicked
+            bool chevronClked = (lvhi.flags & LVHT.EX_GROUP_COLLAPSE) == LVHT.EX_GROUP_COLLAPSE && clickType == User32.WM.LBUTTONUP;
+            if (!groupHeaderDblClked && !chevronClked)
             {
+                return groupID;
+            }
+
+            for (int i = 0; i < groups.Count; i++)
+            {
+                ListViewGroup targetGroup = groups[i];
                 if (targetGroup.ID == groupID)
                 {
-                    if (targetGroup.CollapsedState == CollapedState.Normal)
+                    if (targetGroup.CollapsedState == ListViewGroupCollapsedState.Normal)
                     {
                         return groupID;
                     }
 
-                    targetGroup.CollapsedState = targetGroup.CollapsedState == CollapedState.Expanded
-                                                ? CollapedState.Collapsed
-                                                : CollapedState.Expanded;
-                    OnGroupCollapsedStateChanged(new ListViewGroupEventArgs(groups.IndexOf(targetGroup)));
+                    targetGroup.CollapsedState = targetGroup.CollapsedState == ListViewGroupCollapsedState.Expanded
+                                                ? ListViewGroupCollapsedState.Collapsed
+                                                : ListViewGroupCollapsedState.Expanded;
+                    OnGroupCollapsedStateChanged(new ListViewGroupEventArgs(i));
                     break;
                 }
             }

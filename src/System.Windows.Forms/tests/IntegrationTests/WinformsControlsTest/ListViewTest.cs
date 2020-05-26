@@ -147,7 +147,7 @@ namespace WinformsControlsTest
             var lvgroup1 = new ListViewGroup
             {
                 Header = "CollapsibleGroup1",
-                CollapsedState = CollapedState.Expanded
+                CollapsedState = ListViewGroupCollapsedState.Expanded
             };
 
             listView1.Groups.Add(lvgroup1);
@@ -160,7 +160,7 @@ namespace WinformsControlsTest
             var lvgroup2 = new ListViewGroup
             {
                 Header = "CollapsibleGroup2",
-                CollapsedState = CollapedState.Collapsed
+                CollapsedState = ListViewGroupCollapsedState.Collapsed
             };
 
             listView1.Groups.Add(lvgroup2);

@@ -23,7 +23,7 @@ namespace System.Windows.Forms
         private HorizontalAlignment _headerAlignment = HorizontalAlignment.Left;
         private string? _footer;
         private HorizontalAlignment _footerAlignment = HorizontalAlignment.Left;
-        private CollapedState _collapsedState = CollapedState.Normal;
+        private ListViewGroupCollapsedState _collapsedState = ListViewGroupCollapsedState.Normal;
 
         private ListView.ListViewItemCollection? _items;
 
@@ -163,11 +163,11 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Controls which <see cref="CollapedState"/> the group will appear as.
+        ///  Controls which <see cref="ListViewGroupCollapsedState"/> the group will appear as.
         /// </summary>
-        [DefaultValue(CollapedState.Normal)]
+        [DefaultValue(ListViewGroupCollapsedState.Normal)]
         [SRCategory(nameof(SR.CatAppearance))]
-        public CollapedState CollapsedState
+        public ListViewGroupCollapsedState CollapsedState
         {
             get => _collapsedState;
             set
