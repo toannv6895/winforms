@@ -23,7 +23,7 @@ namespace WinformsControlsTest
             int i = random.Next(100, 300);
 
             Debug.WriteLine(listView1.TileSize);
-            listView1.TileSize = new Size(50, 50);
+            listView1.TileSize = new Size(200, 50);
             listView1.Items[0].ImageIndex = 0;
             listView1.Items[1].ImageIndex = 1;
             listView1.Items[2].ImageIndex = 2;
@@ -154,7 +154,7 @@ namespace WinformsControlsTest
             listView1.Items.Add(new ListViewItem
             {
                 Text = "Item",
-                Group = listView1.Groups[1]
+                Group = lvgroup1
             });
 
             var lvgroup2 = new ListViewGroup
@@ -167,15 +167,15 @@ namespace WinformsControlsTest
             listView1.Items.Add(new ListViewItem
             {
                 Text = "Item",
-                Group = listView1.Groups[2]
+                Group = lvgroup2
             });
 
-            listView1.GroupCollapsedStateChanged += GroupCollapsedStateChangeCallBack;
+            listView1.GroupCollapsedStateChanged += listView1_GroupCollapsedStateChanged;
         }
 
-        private void GroupCollapsedStateChangeCallBack(object sender, ListViewGroupEventArgs args)
+        private void listView1_GroupCollapsedStateChanged(object sender, ListViewGroupEventArgs e)
         {
-            MessageBox.Show("CollapsedState changed at group with index " + args.GroupIndex);
+            MessageBox.Show("CollapsedState changed at group with index " + e.GroupIndex);
         }
 
         private void listView2_Click(object sender, System.EventArgs e)
